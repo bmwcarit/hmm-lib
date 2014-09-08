@@ -19,8 +19,11 @@ package de.bmw.hmm;
 
 /**
  * This interface needs to be implemented and passed to {@link Hmm} to specify observation
- * and transition probabilities. These probabilities can be made time step dependent by
- * storing a time step in each state.
+ * and transition probabilities. These probabilities can be made time step dependent by storing a
+ * time step in each state.
+ *
+ * The methods return logarithmic (ln) probabilities instead of plain probabilities to avoid
+ * arithmetic underflows for very small probabilities.
  *
  * @param <S> state class/interface
  * @param <O> observation class/interface
@@ -28,15 +31,15 @@ package de.bmw.hmm;
 public interface HmmProbabilities<S, O> {
 
     /**
-     * Returns the probability or probability density of making the specified observation in the
-     * specified state, i.e. p(observation|state).
+     * Returns the logarithmic probability or the logarithmic probability density of making the
+     * specified observation in the specified state, i.e. p(observation|state).
      */
-    double emissionProbability(S state, O observation);
+    double emissionLogProbability(S state, O observation);
 
     /**
-     * Returns the probability or probability density of the transition from sourceState to
-     * targetState, i.e. p(targetState|sourceState).
+     * Returns the logarithmic probability or the logarithmic probability density of the transition
+     * from sourceState to targetState, i.e. p(targetState|sourceState).
      */
-    double transitionProbability(S sourceState, S targetState);
+    double transitionLogProbability(S sourceState, S targetState);
 
 }

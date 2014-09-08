@@ -17,7 +17,9 @@
 
 package de.bmw.hmm;
 
+import static java.lang.Math.log;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,35 +62,35 @@ class Umbrella {
 class UmbrellaProbabilities implements HmmProbabilities<Rain, Umbrella> {
 
     @Override
-    public double emissionProbability(Rain state, Umbrella observation) {
+    public double emissionLogProbability(Rain state, Umbrella observation) {
         if (state == Rain.T) {
             if (observation == Umbrella.T) {
-                return 0.9;
+                return log(0.9);
             } else {
-                return 0.1;
+                return log(0.1);
             }
         } else {
             if (observation == Umbrella.T) {
-                return 0.2;
+                return log(0.2);
             } else {
-                return 0.8;
+                return log(0.8);
             }
         }
     }
 
     @Override
-    public double transitionProbability(Rain sourceState, Rain targetState) {
+    public double transitionLogProbability(Rain sourceState, Rain targetState) {
         if (sourceState == Rain.T) {
             if (targetState == Rain.T) {
-                return 0.7;
+                return log(0.7);
             } else {
-                return 0.3;
+                return log(0.3);
             }
         } else {
             if (targetState == Rain.T) {
-                return 0.3;
+                return log(0.3);
             } else {
-                return 0.7;
+                return log(0.7);
             }
         }
     }
@@ -124,6 +126,9 @@ public class ViterbiAlgorithmUmbrellaTest {
 
         // Check most likely sequence
         assertEquals(Arrays.asList(Rain.T, Rain.T, Rain.F, Rain.T), result.mostLikelySequence);
+
+        // Check for HMM breaks
+        assertFalse(result.isBroken);
 
         // Check message history
         List<Map<Rain, Double>> expectedMessageHistory = new ArrayList<>();

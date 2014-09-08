@@ -25,38 +25,36 @@ import java.util.List;
  * state transition probabilities are not fixed for all time steps. Hence, this library requires
  * that the user provides the state candidates for each time step and the computation of state
  * transitions.
- *
- * An initial probability for each starting state does not need to be provided. Instead, the initial
- * state probability for a state s given the initial observation o is computed as p(o|s).
- *
- * @param <S> state class/interface
- * @param <O> observation class/interface
  */
-public class Hmm<S, O> {
-
-    private final HmmProbabilities<S, O> hmmProbabilities;
-
-    public Hmm(HmmProbabilities<S, O> hmmProbabilities) {
-        if (hmmProbabilities == null) {
-            throw new NullPointerException("hmmProbabilities must not be null.");
-        }
-
-        this.hmmProbabilities = hmmProbabilities;
-    }
+public class Hmm {
 
     /**
      * Computes the most likely sequence of states given the specified time step sequence.
-     *
      * Formally, this is argmax p(s_1, ..., s_T | o_1, ..., o_T) with respect to s_1, ..., s_T,
      * where s_t is a state candidate at time step t, o_t is the observation at time step t and T is
      * the number of time steps.
+     *
+     * If the probability of the most likely sequence would be 0 starting with time step t
+     * (and hence the probability would stay 0 for all subsequent time steps) then the most likely
+     * sequence up to t-1 is returned.
+     *
+     * An initial probability for each starting state does not need to be provided. Instead, the
+     * initial state probability for a state s given the initial observation o is computed as
+     * p(o|s).
+     *
      * @param timeStepIter Iterates the finite sequence of time steps. Allows to compute candidates
      * and observations on the fly by implementing the Iterator interface.
+     * @param <S> state class/interface
+     * @param <O> observation class/interface
      */
-    public List<S> computeMostLikelySequence(Iterator<TimeStep<S, O>> timeStepIter) {
+    public static <S, O> List<S> computeMostLikelySequence(
+            HmmProbabilities<S, O> hmmProbabilities, Iterator<TimeStep<S, O>> timeStepIter) {
+        if (hmmProbabilities == null || timeStepIter == null) {
+            throw new NullPointerException();
+        }
+
         ViterbiAlgorithm<S, O> viterbi = new ViterbiAlgorithm<>();
-        return viterbi.compute(hmmProbabilities, timeStepIter, false).
-                mostLikelySequence;
+        return viterbi.compute(hmmProbabilities, timeStepIter, false).mostLikelySequence;
     }
 
 }
