@@ -18,7 +18,6 @@
 package de.bmw.hmm;
 
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Implements an HMM for time-inhomogeneous Markov processes, meaning that the set of states and
@@ -47,14 +46,14 @@ public class Hmm {
      * @param <S> state class/interface
      * @param <O> observation class/interface
      */
-    public static <S, O> List<S> computeMostLikelySequence(
+    public static <S, O> MostLikelySequence<S, O> computeMostLikelySequence(
             HmmProbabilities<S, O> hmmProbabilities, Iterator<TimeStep<S, O>> timeStepIter) {
         if (hmmProbabilities == null || timeStepIter == null) {
             throw new NullPointerException();
         }
 
         ViterbiAlgorithm<S, O> viterbi = new ViterbiAlgorithm<>();
-        return viterbi.compute(hmmProbabilities, timeStepIter, false).mostLikelySequence;
+        return viterbi.compute(hmmProbabilities, timeStepIter, false);
     }
 
 }

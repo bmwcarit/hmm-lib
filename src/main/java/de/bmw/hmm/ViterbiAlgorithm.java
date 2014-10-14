@@ -37,73 +37,15 @@ import java.util.Map;
  */
 public class ViterbiAlgorithm<S, O> {
 
-    /**
-     * Contains the most likely sequence and additional results of the Viterbi algorithm.
-     */
-    public class Result {
-        public final List<S> mostLikelySequence;
-
-        /**
-         * Returns whether an HMM break occurred.
-         *
-         * @see Hmm#computeMostLikelySequence(HmmProbabilities, Iterator)
-         */
-        public final boolean isBroken;
-
-        /**
-         *  Sequence of computed messages for each time step. Is null if message history
-         *  is not kept (see compute()).
-         *
-         *  For each state s_t of the time step t, messageHistory.get(t).get(s_t) contains the log
-         *  probability of the most likely sequence ending in state s_t with given observations
-         *  o_1, ..., o_t.
-         *  Formally, this is max log p(s_1, ..., s_t, o_1, ..., o_t) w.r.t. s_1, ..., s_{t-1}.
-         *  Note that to compute the most likely state sequence, it is sufficient and more
-         *  efficient to compute in each time step the joint probability of states and observations
-         *  instead of computing the conditional probability of states given the observations.
-         */
-        public final List<Map<S, Double>> messageHistory;
-
-        /**
-         * backPointerSequence.get(t).get(s) contains the previous state (at time t-1) of the most
-         * likely state sequence passing at time step t through state s.
-         * Since there are no previous states for t=1, backPointerSequence starts with t=2.
-         */
-        public final List<Map<S, S>> backPointerSequence;
-
-        public Result(List<S> mostLikelySequence, boolean isBroken,
-                List<Map<S, S>> backPointerSequence, List<Map<S, Double>> messageHistory) {
-            this.mostLikelySequence = mostLikelySequence;
-            this.isBroken = isBroken;
-            this.messageHistory = messageHistory;
-            this.backPointerSequence = backPointerSequence;
-        }
-
-        public String messageHistoryString() {
-            StringBuffer sb = new StringBuffer();
-            sb.append("Message history with log probabilies\n\n");
-            int i = 0;
-            for (Map<S, Double> message : messageHistory) {
-                sb.append("Time step " + i + "\n");
-                i++;
-                for (S state : message.keySet()) {
-                    sb.append(state + ": " + message.get(state) + "\n");
-                }
-                sb.append("\n");
-            }
-            return sb.toString();
-        }
-    }
-
     private class ForwardStepResult {
         /**
-         * Log probability of each state. See {@link Result#messageHistory}.
+         * Log probability of each state. See {@link MostLikelySequence#messageHistory}.
          */
         final Map<S, Double> message;
 
         /**
          * Back pointers to previous state candidates for retrieving the most likely sequence after
-         * the forward pass. See {@link Result#backPointerSequence}
+         * the forward pass. See {@link MostLikelySequence#backPointerSequence}
          */
         final Map<S, S> backPointers;
 
@@ -119,7 +61,7 @@ public class ViterbiAlgorithm<S, O> {
      *
      * @param keepMessageHistory Whether to store intermediate forward messages.
      */
-    public Result compute(HmmProbabilities<S, O> hmmProbabilities,
+    public MostLikelySequence<S, O> compute(HmmProbabilities<S, O> hmmProbabilities,
             Iterator<TimeStep<S, O>> timeStepIter, boolean keepMessageHistory) {
         if (hmmProbabilities == null || timeStepIter == null) {
             throw new NullPointerException(
@@ -138,7 +80,8 @@ public class ViterbiAlgorithm<S, O> {
          *  as an HMM break.
          */
         if (!timeStepIter.hasNext()) {
-            return new Result(new ArrayList<S>(), false, backPointerSequence, messageHistory);
+            return new MostLikelySequence<S, O>(new ArrayList<S>(), false, backPointerSequence,
+                    messageHistory);
         }
 
         /*
@@ -148,7 +91,8 @@ public class ViterbiAlgorithm<S, O> {
         TimeStep<S, O> timeStep = timeStepIter.next();
         Map<S, Double> message = computeInitalMessage(hmmProbabilities, timeStep);
         if (hmmBreak(message)) {
-            return new Result(new ArrayList<S>(), true, backPointerSequence, messageHistory);
+            return new MostLikelySequence<S, O>(new ArrayList<S>(), true, backPointerSequence,
+                    messageHistory);
         }
         if (keepMessageHistory) {
             messageHistory.add(message);
@@ -176,7 +120,8 @@ public class ViterbiAlgorithm<S, O> {
         final List<S> mostLikelySequence =
                 retrieveMostLikelySequence(backPointerSequence, mostLikelyState(message));
 
-        return new Result(mostLikelySequence, isBroken, backPointerSequence, messageHistory);
+        return new MostLikelySequence<S, O>(mostLikelySequence, isBroken, backPointerSequence,
+                messageHistory);
     }
 
     /**

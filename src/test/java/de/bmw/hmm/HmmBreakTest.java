@@ -104,10 +104,10 @@ public class HmmBreakTest {
         List<TimeStep<TestState, TestObservation>> timeSteps = new ArrayList<>();
 
         ViterbiAlgorithm<TestState, TestObservation> viterbi = new ViterbiAlgorithm<>();
-        ViterbiAlgorithm<TestState, TestObservation>.Result result =
+        MostLikelySequence<TestState, TestObservation> result =
                 viterbi.compute(new BreakingHmmProbabilities(-1), timeSteps.iterator(), false);
 
-        assertEquals(Arrays.asList(), result.mostLikelySequence);
+        assertEquals(Arrays.asList(), result.sequence);
         assertFalse(result.isBroken);
     }
 
@@ -131,16 +131,16 @@ public class HmmBreakTest {
         timeSteps.add( new TimeStep<>(TestObservation.O, candidates) );
 
         ViterbiAlgorithm<TestState, TestObservation> viterbi = new ViterbiAlgorithm<>();
-        ViterbiAlgorithm<TestState, TestObservation>.Result result =
+        MostLikelySequence<TestState, TestObservation> result =
                 viterbi.compute(new BreakingHmmProbabilities(0), timeSteps.iterator(), false);
 
-        assertEquals(Arrays.asList(), result.mostLikelySequence);
+        assertEquals(Arrays.asList(), result.sequence);
         assertTrue(result.isBroken);
 
         // Test with empty message
         timeSteps.set(0, new TimeStep<TestState, TestObservation>(TestObservation.O));
         result = viterbi.compute(new BreakingHmmProbabilities(-1), timeSteps.iterator(), false);
-        assertEquals(Arrays.asList(), result.mostLikelySequence);
+        assertEquals(Arrays.asList(), result.sequence);
         assertTrue(result.isBroken);
     }
 
@@ -164,16 +164,16 @@ public class HmmBreakTest {
         timeSteps.add( new TimeStep<>(TestObservation.O, candidates) );
 
         ViterbiAlgorithm<TestState, TestObservation> viterbi = new ViterbiAlgorithm<>();
-        ViterbiAlgorithm<TestState, TestObservation>.Result result =
+        MostLikelySequence<TestState, TestObservation> result =
                 viterbi.compute(new BreakingHmmProbabilities(1), timeSteps.iterator(), false);
 
-        assertEquals(Arrays.asList(s11), result.mostLikelySequence);
+        assertEquals(Arrays.asList(s11), result.sequence);
         assertTrue(result.isBroken);
 
         // Test with empty message
         timeSteps.set(1, new TimeStep<TestState, TestObservation>(TestObservation.O));
         result = viterbi.compute(new BreakingHmmProbabilities(-1), timeSteps.iterator(), false);
-        assertEquals(Arrays.asList(s11), result.mostLikelySequence);
+        assertEquals(Arrays.asList(s11), result.sequence);
         assertTrue(result.isBroken);
     }
 
@@ -212,16 +212,16 @@ public class HmmBreakTest {
         timeSteps.add( new TimeStep<>(TestObservation.O, candidates) );
 
         ViterbiAlgorithm<TestState, TestObservation> viterbi = new ViterbiAlgorithm<>();
-        ViterbiAlgorithm<TestState, TestObservation>.Result result =
+        MostLikelySequence<TestState, TestObservation> result =
                 viterbi.compute(new BreakingHmmProbabilities(2), timeSteps.iterator(), false);
 
-        assertEquals(Arrays.asList(s11, s21), result.mostLikelySequence);
+        assertEquals(Arrays.asList(s11, s21), result.sequence);
         assertTrue(result.isBroken);
 
         // Test with empty message
         timeSteps.set(2, new TimeStep<TestState, TestObservation>(TestObservation.O));
         result = viterbi.compute(new BreakingHmmProbabilities(-1), timeSteps.iterator(), false);
-        assertEquals(Arrays.asList(s11, s21), result.mostLikelySequence);
+        assertEquals(Arrays.asList(s11, s21), result.sequence);
         assertTrue(result.isBroken);
     }
 

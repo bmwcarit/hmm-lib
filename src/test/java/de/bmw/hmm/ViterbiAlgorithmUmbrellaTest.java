@@ -120,12 +120,12 @@ public class ViterbiAlgorithmUmbrellaTest {
         timeSteps.add( new TimeStep<>(Umbrella.T, candidates) );
 
         ViterbiAlgorithm<Rain, Umbrella> viterbi = new ViterbiAlgorithm<>();
-        ViterbiAlgorithm<Rain, Umbrella>.Result result = viterbi.compute(
+        MostLikelySequence<Rain, Umbrella> result = viterbi.compute(
                 new UmbrellaProbabilities(), timeSteps.iterator(), true);
 
 
         // Check most likely sequence
-        assertEquals(Arrays.asList(Rain.T, Rain.T, Rain.F, Rain.T), result.mostLikelySequence);
+        assertEquals(Arrays.asList(Rain.T, Rain.T, Rain.F, Rain.T), result.sequence);
 
         // Check for HMM breaks
         assertFalse(result.isBroken);
