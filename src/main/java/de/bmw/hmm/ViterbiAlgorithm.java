@@ -57,7 +57,7 @@ public class ViterbiAlgorithm<S, O> {
 
 
     /**
-     * @see Hmm#computeMostLikelySequence(Iterator)
+     * @see Hmm#computeMostLikelySequence(HmmProbabilities, Iterator)
      *
      * @param keepMessageHistory Whether to store intermediate forward messages.
      */
