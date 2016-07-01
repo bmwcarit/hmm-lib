@@ -79,7 +79,7 @@ class UmbrellaProbabilities implements HmmProbabilities<Rain, Umbrella> {
     }
 
     @Override
-    public double transitionLogProbability(Rain sourceState, Rain targetState) {
+    public double transitionLogProbability(Rain sourceState, Umbrella sourceObservation, Rain targetState, Umbrella targetObservation) {
         if (sourceState == Rain.T) {
             if (targetState == Rain.T) {
                 return log(0.7);

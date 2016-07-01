@@ -40,6 +40,6 @@ public interface HmmProbabilities<S, O> {
      * Returns the logarithmic probability or the logarithmic probability density of the transition
      * from sourceState to targetState, i.e. p(targetState|sourceState).
      */
-    double transitionLogProbability(S sourceState, S targetState);
+    double transitionLogProbability(S sourceState, O sourceObservarion, S targetState, O targetObservation);
 
 }

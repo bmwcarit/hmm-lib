@@ -164,7 +164,7 @@ public class ViterbiAlgorithm<S, O> {
             S maxPrevState = null;
             for (S prevState : prevTimeStep.candidates) {
                 double logProbability = message.get(prevState)
-                        + hmmProbabilities.transitionLogProbability(prevState, curState);
+                        + hmmProbabilities.transitionLogProbability(prevState, prevTimeStep.observation, curState, curTimeStep.observation);
                 if (logProbability > maxLogProbability) {
                     maxLogProbability = logProbability;
                     maxPrevState = prevState;
