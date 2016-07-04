@@ -84,7 +84,7 @@ class BreakingHmmProbabilities implements HmmProbabilities<TestState, TestObserv
     }
 
     @Override
-    public double transitionLogProbability(TestState sourceState, TestState targetState) {
+    public double transitionLogProbability(TestState sourceState, TestObservation testObservation, TestState targetState, TestObservation targetObservation) {
         if (sourceState.timeStep == breakAtTimeStep) {
             return log(0.0);
         }
