@@ -2,7 +2,7 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 <!--
- ~ Copyright (C) 2015, BMW Car IT GmbH
+ ~ Copyright (C) 2015-2016, BMW Car IT GmbH and BMW AG
  ~ Author: Stefan Holder (stefan.holder@bmw.de)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.bmw.hmm</groupId>
   <artifactId>hmm</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <packaging>jar</packaging>
 
   <name>HMM Lib</name>
@@ -29,8 +29,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
   <developers>
     <developer>
-    <organization>BMW Car IT GmbH</organization>
-      <organizationUrl>http://www.bmw-carit.com</organizationUrl>
+    <organization>BMW Car IT GmbH, BMW AG</organization>
+      <organizationUrl>http://www.bmw-carit.com, http://www.bmw.com</organizationUrl>
      </developer>
   </developers>
 
