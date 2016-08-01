@@ -39,5 +39,13 @@ This library is licensed under the
 [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
 
 # Changes
+* 1.0.0:
+  * API redesign to allow calling the Viterbi algorithm iteratively. This gives the library user
+   increased flexibility and optimization opportunities when computing transition and observation
+   probabilities. Moreover, the new API enables better handling of HMM breaks.
+  * Add support for transition descriptors. For map matching, this allows retrieving the paths
+   between matched positions (the entire matched route) after computing the most likely sequence.
+  *  Reduce memory footprint from O(t\*n²) to O(t\*n) or even O(t) in many applications, where t is
+    the number of  time steps and n is the number of candidates per time step. 
 * 0.2.0: Extend HmmProbabilities interface to include the observation
 * 0.1.0: Initial release
