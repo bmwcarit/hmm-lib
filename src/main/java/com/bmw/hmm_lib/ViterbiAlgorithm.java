@@ -368,13 +368,9 @@ public class ViterbiAlgorithm<S, O, D> {
             double maxLogProbability = Double.NEGATIVE_INFINITY;
             S maxPrevState = null;
             for (S prevState : prevCandidates) {
-            	
-                double logProbability = message.get(prevState) + transitionLogProbability(
+                final double logProbability = message.get(prevState) + transitionLogProbability(
                 		transitionLogProbabilities, prevState, curState);
-
-                // First condition makes sure that we also have a back pointer if the
-                // transition probability is zero.
-                if (maxPrevState == null || logProbability >= maxLogProbability) {
+                if (logProbability > maxLogProbability) {
                     maxLogProbability = logProbability;
                     maxPrevState = prevState;
                 }
@@ -382,13 +378,17 @@ public class ViterbiAlgorithm<S, O, D> {
             // Throws NullPointerException if curState is not stored in the map.
             result.message.put(curState, maxLogProbability 
             		+ emissionLogProbabilities.get(curState));
-            
-            assert(maxPrevState != null);
-            final Transition<S> transition = new Transition<>(maxPrevState, curState);
-            final ExtendedState<S, O, D> es = new ExtendedState<>(curState, 
-            		lastExtendedStates.get(maxPrevState), observation, 
-            		transitionDescriptors.get(transition));
-            result.backPointers.put(curState, es);
+
+            // Note that maxPrevState == null if there is no transition with non-zero probability.
+            // In this case curState has zero probability and will not be part of the most likely
+            // sequence, so we don't need an ExtendedState.
+            if (maxPrevState != null) {
+	            final Transition<S> transition = new Transition<>(maxPrevState, curState);
+	            final ExtendedState<S, O, D> extendedState = new ExtendedState<>(curState, 
+	            		lastExtendedStates.get(maxPrevState), observation, 
+	            		transitionDescriptors.get(transition));
+	            result.backPointers.put(curState, extendedState);
+            }
         }
         return result;
     }
