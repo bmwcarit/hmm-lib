@@ -20,8 +20,8 @@ package com.bmw.hmm_lib;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +31,7 @@ import java.util.Map;
  * for all time steps. The plain Viterbi algorithm for stationary Markov processes is described e.g.
  * in Rabiner, Juang, An introduction to Hidden Markov Models, IEEE ASSP Mag., pp 4-16, June 1986.
  * 
- * Generally expects logarithmic probabilities as input to prevent arithmetic underflows for
+ * <p>Generally expects logarithmic probabilities as input to prevent arithmetic underflows for
  * small probability values. 
  * 
  * <p>This algorithm supports storing transition objects in
@@ -50,8 +50,8 @@ import java.util.Map;
  * This implementation exploits this fact by letting the Java garbage collector
  * take care of unreachable back pointers. If back pointers converge to a single path after a
  * constant number of time steps, only O(t) back pointers and transition descriptors need to be
- * stored in memory.  
- *  
+ * stored in memory.
+ * 
  * @param <S> the state type
  * @param <O> the observation type
  * @param <D> the transition descriptor type. Pass {@link Object} if transition descriptors are not
@@ -100,8 +100,8 @@ public class ViterbiAlgorithm<S, O, D> {
         final Map<S, ExtendedState<S, O, D>> backPointers;
 
         ForwardStepResult(int numberStates) {
-            message = new HashMap<>(Utils.initialHashMapCapacity(numberStates));
-            backPointers = new HashMap<>(Utils.initialHashMapCapacity(numberStates));
+            message = new LinkedHashMap<>(Utils.initialHashMapCapacity(numberStates));
+            backPointers = new LinkedHashMap<>(Utils.initialHashMapCapacity(numberStates));
         }
     }
     
@@ -138,6 +138,8 @@ public class ViterbiAlgorithm<S, O, D> {
     /**
 	 * Lets the HMM computation start with the given initial state probabilities. 
      * 
+     * @param initialStates Pass a collection with predictable iteration order such as
+     * {@link ArrayList} to ensure deterministic results.
      * @param initialLogProbabilities Initial log probabilities for each initial state.
      * 
      * @throws NullPointerException if any initial probability is missing
@@ -155,6 +157,8 @@ public class ViterbiAlgorithm<S, O, D> {
 	 * Lets the HMM computation starts at the given first observation and uses the given emission
 	 * probabilities as the initial state probability for each starting state s. 
      * 
+     * @param candidates Pass a collection with predictable iteration order such as
+     * {@link ArrayList} to ensure deterministic results.
      * @param emissionLogProbabilities Emission log probabilities of the first observation for
      * each of the road position candidates.
      * 
@@ -172,6 +176,8 @@ public class ViterbiAlgorithm<S, O, D> {
     /**
      * Processes the next time step. Must not be called if the HMM is broken. 
      * 
+     * @param candidates Pass a collection with predictable iteration order such as
+     * {@link ArrayList} to ensure deterministic results.
      * @param emissionLogProbabilities Emission log probabilities for each candidate state.
      *  
      * @param transitionLogProbabilities Transition log probability between all pairs of candidates.
@@ -221,7 +227,7 @@ public class ViterbiAlgorithm<S, O, D> {
     		Map<S, Double> emissionLogProbabilities, 
     		Map<Transition<S>, Double> transitionLogProbabilities) {
     	nextStep(observation, candidates, emissionLogProbabilities, transitionLogProbabilities, 
-    			new HashMap<Transition<S>, D>());
+    			new LinkedHashMap<Transition<S>, D>());
     }
     
     /**
@@ -314,29 +320,33 @@ public class ViterbiAlgorithm<S, O, D> {
     	if (message != null) {
     		throw new IllegalStateException("Initial probabilities have already been set.");
     	}
-    	
-		for (S candidate : candidates) {
-			if (!initialLogProbabilities.containsKey(candidate)) {
-				throw new NullPointerException(
-						"There must be an initial probability for each candidate.");
-			}
-		}
-		
-		isBroken = hmmBreak(initialLogProbabilities);
+
+		// Set initial log probability for each start state candidate based on first observation.
+    	// Do not assign initialLogProbabilities directly to message to not rely on its iteration
+    	// order.
+        final Map<S, Double> initialMessage = new LinkedHashMap<>();
+        for (S candidate : candidates) {
+        	final Double logProbability = initialLogProbabilities.get(candidate);
+        	if (logProbability == null) {
+        		throw new NullPointerException("No initial probability for " + candidate);
+        	}
+        	initialMessage.put(candidate, logProbability);
+        }
+        
+		isBroken = hmmBreak(initialMessage);
 		if (isBroken) return;
 		
-		// Set initial log probability for each start state candidate based on first observation.
-        message = initialLogProbabilities;
+		message = initialMessage;
+        if (messageHistory != null) {
+            messageHistory.add(message);
+        }
         
-        lastExtendedStates = new HashMap<>();
+        lastExtendedStates = new LinkedHashMap<>();
         for (S candidate : candidates) {
         	lastExtendedStates.put(candidate, 
         			new ExtendedState<S, O, D>(candidate, null, observation, null));
         }
         
-        if (messageHistory != null) {
-            messageHistory.add(message);
-        }
         prevCandidates = candidates;       	
     }    
     
