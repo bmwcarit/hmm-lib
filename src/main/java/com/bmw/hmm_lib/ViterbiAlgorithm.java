@@ -80,7 +80,7 @@ public class ViterbiAlgorithm<S, O> {
          *  as an HMM break.
          */
         if (!timeStepIter.hasNext()) {
-            return new MostLikelySequence<S, O>(new ArrayList<S>(), false, backPointerSequence,
+            return new MostLikelySequence<S, O>(new ArrayList<S>(), false, -1, backPointerSequence,
                     messageHistory);
         }
 
@@ -91,13 +91,14 @@ public class ViterbiAlgorithm<S, O> {
         TimeStep<S, O> timeStep = timeStepIter.next();
         Map<S, Double> message = computeInitalMessage(hmmProbabilities, timeStep);
         if (hmmBreak(message)) {
-            return new MostLikelySequence<S, O>(new ArrayList<S>(), true, backPointerSequence,
+            return new MostLikelySequence<S, O>(new ArrayList<S>(), true, 0, backPointerSequence,
                     messageHistory);
         }
         if (keepMessageHistory) {
             messageHistory.add(message);
         }
 
+        int successfulSteps = 1;
         // Forward pass
         boolean isBroken = false;
         while (timeStepIter.hasNext()) {
@@ -114,13 +115,14 @@ public class ViterbiAlgorithm<S, O> {
             }
             message = forwardStepResult.message;
             backPointerSequence.add(forwardStepResult.backPointers);
+            successfulSteps++;
         }
 
         // Retrieve most likely state sequence
         final List<S> mostLikelySequence =
                 retrieveMostLikelySequence(backPointerSequence, mostLikelyState(message));
 
-        return new MostLikelySequence<S, O>(mostLikelySequence, isBroken, backPointerSequence,
+        return new MostLikelySequence<S, O>(mostLikelySequence, isBroken, successfulSteps, backPointerSequence,
                 messageHistory);
     }
 
@@ -157,7 +159,9 @@ public class ViterbiAlgorithm<S, O> {
     private ForwardStepResult forwardStep(HmmProbabilities<S, O> hmmProbabilities,
             TimeStep<S, O> prevTimeStep, TimeStep<S, O> curTimeStep, Map<S, Double> message) {
         final ForwardStepResult result = new ForwardStepResult(curTimeStep.candidates.size());
-        assert( !prevTimeStep.candidates.isEmpty());
+        if (prevTimeStep.candidates.isEmpty()) {
+            throw new IllegalStateException("Candidates should not be empty here");
+        }
 
         for (S curState : curTimeStep.candidates) {
             double maxLogProbability = Double.NEGATIVE_INFINITY;

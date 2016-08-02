@@ -54,26 +54,38 @@ public class MostLikelySequence<S, O> {
      * Since there are no previous states for t=1, backPointerSequence starts with t=2.
      */
     public final List<Map<S, S>> backPointerSequence;
+    private final int brokenTimeStep;
 
-    public MostLikelySequence(List<S> mostLikelySequence, boolean isBroken,
+    public MostLikelySequence(List<S> mostLikelySequence, boolean isBroken, int brokenTimeStep,
             List<Map<S, S>> backPointerSequence, List<Map<S, Double>> messageHistory) {
         this.sequence = mostLikelySequence;
         this.isBroken = isBroken;
+        this.brokenTimeStep = brokenTimeStep;
         this.messageHistory = messageHistory;
         this.backPointerSequence = backPointerSequence;
     }
+    
+    public int getBrokenTimeStep() {
+        if (!isBroken) {
+            throw new IllegalStateException("Cannot call getBrokenTimeStep if sequence is not broken");
+        }
 
+        return brokenTimeStep;
+    }
+    
     public String messageHistoryString() {
         StringBuffer sb = new StringBuffer();
         sb.append("Message history with log probabilies\n\n");
         int i = 0;
-        for (Map<S, Double> message : messageHistory) {
-            sb.append("Time step " + i + "\n");
-            i++;
-            for (S state : message.keySet()) {
-                sb.append(state + ": " + message.get(state) + "\n");
+        if (messageHistory != null) {
+            for (Map<S, Double> message : messageHistory) {
+                sb.append("Time step " + i + "\n");
+                i++;
+                for (S state : message.keySet()) {
+                    sb.append(state + ": " + message.get(state) + "\n");
+                }
+                sb.append("\n");
             }
-            sb.append("\n");
         }
         return sb.toString();
     }
