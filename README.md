@@ -39,7 +39,7 @@ To use this library, add the following to your pom.xml:
 
 ```
 <dependency>
-  <groupId>com.bmw.hmm_lib</groupId>
+  <groupId>com.bmw.hmm</groupId>
   <artifactId>hmm-lib</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 </dependency>
@@ -71,7 +71,7 @@ For code contributions (e.g. new features or bugfixes), please create a pull req
    probabilities. Moreover, the new API enables better handling of HMM breaks.
   * Add support for transition descriptors. For map matching, this allows retrieving the paths
    between matched positions (the entire matched route) after computing the most likely sequence.
-  *  Reduce memory footprint from O(t\*n²) to O(t\*n) or even O(t) in many applications, where t is
+  *  Reduce memory footprint from O(t\*nï¿½) to O(t\*n) or even O(t) in many applications, where t is
     the number of  time steps and n is the number of candidates per time step. 
 * 0.2.0: Extend HmmProbabilities interface to include the observation
 * 0.1.0: Initial release

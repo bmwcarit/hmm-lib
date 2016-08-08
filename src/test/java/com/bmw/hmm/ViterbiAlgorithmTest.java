@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.bmw.hmm_lib;
+package com.bmw.hmm;
 
 import static java.lang.Math.log;
 import static org.junit.Assert.assertEquals;
@@ -30,9 +30,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.bmw.hmm_lib.SequenceState;
-import com.bmw.hmm_lib.Transition;
-import com.bmw.hmm_lib.ViterbiAlgorithm;
+import com.bmw.hmm.SequenceState;
+import com.bmw.hmm.Transition;
+import com.bmw.hmm.ViterbiAlgorithm;
 
 public class ViterbiAlgorithmTest {
 

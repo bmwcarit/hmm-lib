@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.bmw.hmm_lib;
+package com.bmw.hmm;
 
 /**
  * Implementation utilities.
