@@ -42,16 +42,37 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     </license>
   </licenses>
   
-  <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  </properties>
-
   <scm>
     <connection>scm:git:git@github.com:bmwcarit/hmm-lib.git</connection>
     <developerConnection>scm:git:git@github.com:bmwcarit/hmm-lib.git</developerConnection>
     <url>git@github.com:bmwcarit/hmm-lib</url>
   </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>hmm-lib-snapshots</id>
+        <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-snapshots/</url>
+    </snapshotRepository>
+
+    <repository>
+      <id>hmm-lib-releases</id>
+        <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-releases/</url>
+    </repository>
+  </distributionManagement>
+  
+  <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+      <version>4.11</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
@@ -63,14 +84,51 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
           <target>1.7</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.4</version>
+	      <executions>
+	        <execution>
+	          <id>attach-sources</id>
+	          <phase>deploy</phase>
+	          <goals><goal>jar-no-fork</goal></goals> 
+	        </execution>
+	      </executions>        
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.3</version>
+	      <executions> 
+	        <execution> 
+	          <id>attach-javadocs</id>
+	          <phase>deploy</phase>
+	          <goals><goal>jar</goal></goals> 
+	        </execution> 
+	      </executions>         
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.6</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.6</version>
+      </plugin>
+	    <plugin> 
+	      <!-- Forces execution order -->
+	      <artifactId>maven-deploy-plugin</artifactId> 
+	      <executions> 
+	        <execution> 
+	          <id>deploy</id>
+	          <phase>deploy</phase>
+	          <goals><goal>deploy</goal></goals> 
+	        </execution> 
+	      </executions> 
+	    </plugin>      
     </plugins>
   </build>
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-      <version>4.11</version>
-    </dependency>
-  </dependencies>
 </project>
