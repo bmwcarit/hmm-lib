@@ -24,19 +24,45 @@ particular map.
 
 Besides map matching, the hmm-lib can also be used for other applications.
 
+# License
+
+This library is licensed under the
+[Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
 
 # Dependencies
 
 Except for testing, there are no dependencies to other libraries.
 
+# Maven
+
+To use this library, add the following to your pom.xml:
+
+```
+<dependency>
+  <groupId>com.bmw.hmm_lib</groupId>
+  <artifactId>hmm-lib</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+If you want to use snapshots, add
+```
+<repositories>
+  ...
+  <repository>
+    <id>hmm-lib-snapshots</id>
+    <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-snapshots/</url>
+    <snapshots>
+      <enabled>true</enabled>
+      <updatePolicy>always</updatePolicy>
+    </snapshots>
+  </repository>
+</repositories>
+```
+
 # Contribute
 Contributions are welcome! For bug reports, please create an issue. 
 For code contributions (e.g. new features or bugfixes), please create a pull request.
-
-# License
-
-This library is licensed under the
-[Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
 
 # Changes
 * 1.0.0:
