@@ -28,48 +28,48 @@ import java.util.Objects;
  */
 public class SequenceState<S, O, D> {
 
-	public final S state;
-	
-	/**
-	 * Null if HMM was started with initial state probabilities and state is the initial state. 
-	 */
-	public final O observation;
-	
-	/**
-	 * Null if transition descriptor was not provided.
-	 */
-	public final D transitionDescriptor;
-	
-	public SequenceState(S state, O observation, D transitionDescriptor) {
-		this.state = state;
-		this.observation = observation;
-		this.transitionDescriptor = transitionDescriptor;
-	}
+    public final S state;
+    
+    /**
+     * Null if HMM was started with initial state probabilities and state is the initial state. 
+     */
+    public final O observation;
+    
+    /**
+     * Null if transition descriptor was not provided.
+     */
+    public final D transitionDescriptor;
+    
+    public SequenceState(S state, O observation, D transitionDescriptor) {
+        this.state = state;
+        this.observation = observation;
+        this.transitionDescriptor = transitionDescriptor;
+    }
 
-	@Override
-	public String toString() {
-		return "SequenceState [state=" + state + ", observation=" + observation
-				+ ", transitionDescriptor=" + transitionDescriptor
-				+ "]";
-	}
+    @Override
+    public String toString() {
+        return "SequenceState [state=" + state + ", observation=" + observation
+                + ", transitionDescriptor=" + transitionDescriptor
+                + "]";
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(state, observation, transitionDescriptor);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(state, observation, transitionDescriptor);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SequenceState<?, ?, ?> other = (SequenceState<?, ?, ?>) obj;
-		return Objects.equals(state, other.state) &&
-				Objects.equals(observation, other.observation) &&
-				Objects.equals(transitionDescriptor, other.transitionDescriptor);
-	}
-	
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SequenceState<?, ?, ?> other = (SequenceState<?, ?, ?>) obj;
+        return Objects.equals(state, other.state) &&
+                Objects.equals(observation, other.observation) &&
+                Objects.equals(transitionDescriptor, other.transitionDescriptor);
+    }
+    
 }

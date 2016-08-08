@@ -63,30 +63,30 @@ public class ViterbiAlgorithm<S, O, D> {
      * Stores addition information for each candidate.
      */
     private static class ExtendedState<S, O, D> {
-    	
-    	S state;
+        
+        S state;
 
-    	/**
-    	 * Back pointer to previous state candidate in the most likely sequence.
+        /**
+         * Back pointer to previous state candidate in the most likely sequence.
          * See {@link MostLikelySequence#backPointerSequence}.
-    	 * Back pointers are chained using plain Java references.
-    	 * This allows garbage collection of unreachable back pointers.
-    	 */
-    	ExtendedState<S, O, D> backPointer;
-    	
-    	O observation;
-    	D transitionDescriptor;
-		
-    	ExtendedState(S state,
-				ExtendedState<S, O, D> backPointer,
-				O observation, D transitionDescriptor) {
-			this.state = state;
-			this.backPointer = backPointer;
-			this.observation = observation;
-			this.transitionDescriptor = transitionDescriptor;
-		}
+         * Back pointers are chained using plain Java references.
+         * This allows garbage collection of unreachable back pointers.
+         */
+        ExtendedState<S, O, D> backPointer;
+        
+        O observation;
+        D transitionDescriptor;
+        
+        ExtendedState(S state,
+                ExtendedState<S, O, D> backPointer,
+                O observation, D transitionDescriptor) {
+            this.state = state;
+            this.backPointer = backPointer;
+            this.observation = observation;
+            this.transitionDescriptor = transitionDescriptor;
+        }
     }
-	
+    
     private static class ForwardStepResult<S, O, D> {
         /**
          * Log probability of each state. See {@link MostLikelySequence#messageHistory}.
@@ -121,7 +121,7 @@ public class ViterbiAlgorithm<S, O, D> {
      * Does not keep the message history.
      */
     public ViterbiAlgorithm() {
-    	this(false);
+        this(false);
     }
     
     /**
@@ -136,7 +136,7 @@ public class ViterbiAlgorithm<S, O, D> {
     }
 
     /**
-	 * Lets the HMM computation start with the given initial state probabilities. 
+     * Lets the HMM computation start with the given initial state probabilities. 
      * 
      * @param initialStates Pass a collection with predictable iteration order such as
      * {@link ArrayList} to ensure deterministic results.
@@ -149,13 +149,13 @@ public class ViterbiAlgorithm<S, O, D> {
      * has already been called  
      */
     public void startWithInitialStateProbabilities(Collection<S> initialStates, 
-    		Map<S, Double> initialLogProbabilities) {
-    	initializeStateProbabilities(null, initialStates, initialLogProbabilities);
+            Map<S, Double> initialLogProbabilities) {
+        initializeStateProbabilities(null, initialStates, initialLogProbabilities);
     }
     
     /**
-	 * Lets the HMM computation starts at the given first observation and uses the given emission
-	 * probabilities as the initial state probability for each starting state s. 
+     * Lets the HMM computation starts at the given first observation and uses the given emission
+     * probabilities as the initial state probability for each starting state s. 
      * 
      * @param candidates Pass a collection with predictable iteration order such as
      * {@link ArrayList} to ensure deterministic results.
@@ -169,8 +169,8 @@ public class ViterbiAlgorithm<S, O, D> {
      * has already been called  
      */
     public void startWithInitialObservation(O observation, Collection<S> candidates, 
-    		Map<S, Double> emissionLogProbabilities) {
-    	initializeStateProbabilities(observation, candidates, emissionLogProbabilities);
+            Map<S, Double> emissionLogProbabilities) {
+        initializeStateProbabilities(observation, candidates, emissionLogProbabilities);
     }
     
     /**
@@ -193,22 +193,22 @@ public class ViterbiAlgorithm<S, O, D> {
      * has not been called before or if this method is called after an HMM break has occurred 
      */
     public void nextStep(O observation, Collection<S> candidates,
-    		Map<S, Double> emissionLogProbabilities, 
-    		Map<Transition<S>, Double> transitionLogProbabilities, 
-    		Map<Transition<S>, D> transitionDescriptors) {
-    	if (message == null) {
-    		throw new IllegalStateException(
-    				"startWithInitialStateProbabilities() or startWithInitialObservation() "
-    				+ "must be called first.");
-    	}
-    	if (isBroken) {
-    		throw new IllegalStateException("Method must not be called after an HMM break.");
-    	}
-    	
+            Map<S, Double> emissionLogProbabilities, 
+            Map<Transition<S>, Double> transitionLogProbabilities, 
+            Map<Transition<S>, D> transitionDescriptors) {
+        if (message == null) {
+            throw new IllegalStateException(
+                    "startWithInitialStateProbabilities() or startWithInitialObservation() "
+                    + "must be called first.");
+        }
+        if (isBroken) {
+            throw new IllegalStateException("Method must not be called after an HMM break.");
+        }
+        
         // Forward step
         ForwardStepResult<S, O, D> forwardStepResult = forwardStep(observation, prevCandidates, 
-        		candidates, message, emissionLogProbabilities, transitionLogProbabilities, 
-        		transitionDescriptors);
+                candidates, message, emissionLogProbabilities, transitionLogProbabilities, 
+                transitionDescriptors);
         isBroken = hmmBreak(forwardStepResult.message);
         if (isBroken) return;
         if (messageHistory != null) {
@@ -217,17 +217,17 @@ public class ViterbiAlgorithm<S, O, D> {
         message = forwardStepResult.message;
         lastExtendedStates = forwardStepResult.backPointers;
 
-    	prevCandidates = candidates;
+        prevCandidates = candidates;
     }
     
     /**
      * See {@link ViterbiAlgorithm#nextStep(Object, Collection, Map, Map, Map)}
      */
     public void nextStep(O observation, Collection<S> candidates,
-    		Map<S, Double> emissionLogProbabilities, 
-    		Map<Transition<S>, Double> transitionLogProbabilities) {
-    	nextStep(observation, candidates, emissionLogProbabilities, transitionLogProbabilities, 
-    			new LinkedHashMap<Transition<S>, D>());
+            Map<S, Double> emissionLogProbabilities, 
+            Map<Transition<S>, Double> transitionLogProbabilities) {
+        nextStep(observation, candidates, emissionLogProbabilities, transitionLogProbabilities, 
+                new LinkedHashMap<Transition<S>, D>());
     }
     
     /**
@@ -241,14 +241,14 @@ public class ViterbiAlgorithm<S, O, D> {
      * See {@link ViterbiAlgorithm#isBroken()}
      */
     public List<SequenceState<S, O, D>> computeMostLikelySequence() {
-    	if (message == null) {
-        	// Return empty most likely sequence if there are no time steps or if initial 
-    		// observations caused an HMM break.
-    		return new ArrayList<>();  
-    	} else {
-    		assert(!message.isEmpty()); // Otherwise an HMM break occurred and message would be null
-    		return retrieveMostLikelySequence(mostLikelyState(message));
-    	}
+        if (message == null) {
+            // Return empty most likely sequence if there are no time steps or if initial 
+            // observations caused an HMM break.
+            return new ArrayList<>();  
+        } else {
+            assert(!message.isEmpty()); // Otherwise an HMM break occurred and message would be null
+            return retrieveMostLikelySequence(mostLikelyState(message));
+        }
     }
     
     /**
@@ -257,7 +257,7 @@ public class ViterbiAlgorithm<S, O, D> {
      * An HMM break means that the probability of all states equals zero.
      */
     public boolean isBroken() {
-    	return isBroken;
+        return isBroken;
     }
     
     /**
@@ -273,7 +273,7 @@ public class ViterbiAlgorithm<S, O, D> {
      *  instead of computing the conditional probability of states given the observations.
      */
     List<Map<S, Double>> messageHistory() {
-    	return messageHistory;
+        return messageHistory;
     }
     
     String messageHistoryString() {
@@ -296,7 +296,7 @@ public class ViterbiAlgorithm<S, O, D> {
      * likely state sequence passing at time step t through state s.
      */
     Map<S, ExtendedState<S, O, D>> backPointers() {
-    	return lastExtendedStates;
+        return lastExtendedStates;
     }
     
     /**
@@ -316,38 +316,38 @@ public class ViterbiAlgorithm<S, O, D> {
      * @param observation Use only if HMM only starts with first observation.
      */
     private void initializeStateProbabilities(O observation, Collection<S> candidates, 
-    		Map<S, Double> initialLogProbabilities) {
-    	if (message != null) {
-    		throw new IllegalStateException("Initial probabilities have already been set.");
-    	}
+            Map<S, Double> initialLogProbabilities) {
+        if (message != null) {
+            throw new IllegalStateException("Initial probabilities have already been set.");
+        }
 
-		// Set initial log probability for each start state candidate based on first observation.
-    	// Do not assign initialLogProbabilities directly to message to not rely on its iteration
-    	// order.
+        // Set initial log probability for each start state candidate based on first observation.
+        // Do not assign initialLogProbabilities directly to message to not rely on its iteration
+        // order.
         final Map<S, Double> initialMessage = new LinkedHashMap<>();
         for (S candidate : candidates) {
-        	final Double logProbability = initialLogProbabilities.get(candidate);
-        	if (logProbability == null) {
-        		throw new NullPointerException("No initial probability for " + candidate);
-        	}
-        	initialMessage.put(candidate, logProbability);
+            final Double logProbability = initialLogProbabilities.get(candidate);
+            if (logProbability == null) {
+                throw new NullPointerException("No initial probability for " + candidate);
+            }
+            initialMessage.put(candidate, logProbability);
         }
         
-		isBroken = hmmBreak(initialMessage);
-		if (isBroken) return;
-		
-		message = initialMessage;
+        isBroken = hmmBreak(initialMessage);
+        if (isBroken) return;
+        
+        message = initialMessage;
         if (messageHistory != null) {
             messageHistory.add(message);
         }
         
         lastExtendedStates = new LinkedHashMap<>();
         for (S candidate : candidates) {
-        	lastExtendedStates.put(candidate, 
-        			new ExtendedState<S, O, D>(candidate, null, observation, null));
+            lastExtendedStates.put(candidate, 
+                    new ExtendedState<S, O, D>(candidate, null, observation, null));
         }
         
-        prevCandidates = candidates;       	
+        prevCandidates = candidates;           
     }    
     
     /**
@@ -357,10 +357,10 @@ public class ViterbiAlgorithm<S, O, D> {
      * @throws NullPointerException if any emission probability is missing.
      */
     private ForwardStepResult<S, O, D> forwardStep(O observation, Collection<S> prevCandidates, 
-    		Collection<S> curCandidates, Map<S, Double> message, 
-    		Map<S, Double> emissionLogProbabilities, 
-    		Map<Transition<S>, Double> transitionLogProbabilities, 
-    		Map<Transition<S>,D> transitionDescriptors) {
+            Collection<S> curCandidates, Map<S, Double> message, 
+            Map<S, Double> emissionLogProbabilities, 
+            Map<Transition<S>, Double> transitionLogProbabilities, 
+            Map<Transition<S>,D> transitionDescriptors) {
         final ForwardStepResult<S, O, D> result = new ForwardStepResult<>(curCandidates.size());
         assert( !prevCandidates.isEmpty());
 
@@ -369,7 +369,7 @@ public class ViterbiAlgorithm<S, O, D> {
             S maxPrevState = null;
             for (S prevState : prevCandidates) {
                 final double logProbability = message.get(prevState) + transitionLogProbability(
-                		transitionLogProbabilities, prevState, curState);
+                        transitionLogProbabilities, prevState, curState);
                 if (logProbability > maxLogProbability) {
                     maxLogProbability = logProbability;
                     maxPrevState = prevState;
@@ -377,41 +377,41 @@ public class ViterbiAlgorithm<S, O, D> {
             }
             // Throws NullPointerException if curState is not stored in the map.
             result.message.put(curState, maxLogProbability 
-            		+ emissionLogProbabilities.get(curState));
+                    + emissionLogProbabilities.get(curState));
 
             // Note that maxPrevState == null if there is no transition with non-zero probability.
             // In this case curState has zero probability and will not be part of the most likely
             // sequence, so we don't need an ExtendedState.
             if (maxPrevState != null) {
-	            final Transition<S> transition = new Transition<>(maxPrevState, curState);
-	            final ExtendedState<S, O, D> extendedState = new ExtendedState<>(curState, 
-	            		lastExtendedStates.get(maxPrevState), observation, 
-	            		transitionDescriptors.get(transition));
-	            result.backPointers.put(curState, extendedState);
+                final Transition<S> transition = new Transition<>(maxPrevState, curState);
+                final ExtendedState<S, O, D> extendedState = new ExtendedState<>(curState, 
+                        lastExtendedStates.get(maxPrevState), observation, 
+                        transitionDescriptors.get(transition));
+                result.backPointers.put(curState, extendedState);
             }
         }
         return result;
     }
 
     private double transitionLogProbability(Map<Transition<S>, Double> transitionLogProbabilities,
-    		S prevState, S curState) {
-    	final Double transitionLogProbability = 
-    			transitionLogProbabilities.get(new Transition<S>(prevState, curState));
-    	if (transitionLogProbability == null) {
-    		return Double.NEGATIVE_INFINITY; // Transition has zero probability.
-    	} else {
-    		return transitionLogProbability;
-    	}
-	}
+            S prevState, S curState) {
+        final Double transitionLogProbability = 
+                transitionLogProbabilities.get(new Transition<S>(prevState, curState));
+        if (transitionLogProbability == null) {
+            return Double.NEGATIVE_INFINITY; // Transition has zero probability.
+        } else {
+            return transitionLogProbability;
+        }
+    }
 
-	/**
+    /**
      * Retrieves a state with maximum probability.
      */
     private S mostLikelyState(Map<S, Double> message) {
-    	if (message.isEmpty()) {
-    		throw new IllegalArgumentException("message must not be empty.");
-    	}
-    	
+        if (message.isEmpty()) {
+            throw new IllegalArgumentException("message must not be empty.");
+        }
+        
         // Set first state as most likely state.
         final Iterator<Map.Entry<S, Double>> entryIter = message.entrySet().iterator();
         final Map.Entry<S, Double> firstEntry = entryIter.next();
@@ -434,15 +434,15 @@ public class ViterbiAlgorithm<S, O, D> {
      * specified last state.
      */
     private List<SequenceState<S, O, D>> retrieveMostLikelySequence(S lastState) {
-    	final List<SequenceState<S, O, D>> result = new ArrayList<>();
+        final List<SequenceState<S, O, D>> result = new ArrayList<>();
 
-    	// Retrieve most likely state sequence in reverse order
-    	ExtendedState<S, O, D> es = lastExtendedStates.get(lastState);
+        // Retrieve most likely state sequence in reverse order
+        ExtendedState<S, O, D> es = lastExtendedStates.get(lastState);
         while(es != null) {
-        	final SequenceState<S, O, D> ss = new SequenceState<>(es.state, es.observation, 
-        			es.transitionDescriptor);
-        	result.add(ss);
-        	es = es.backPointer;
+            final SequenceState<S, O, D> ss = new SequenceState<>(es.state, es.observation, 
+                    es.transitionDescriptor);
+            result.add(ss);
+            es = es.backPointer;
         }
         
         Collections.reverse(result);

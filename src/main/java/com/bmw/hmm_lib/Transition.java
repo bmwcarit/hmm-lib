@@ -25,38 +25,38 @@ import java.util.Objects;
  * @param <S> the state type   
  */
 public class Transition<S> {
-	public S fromCandidate;
-	public S toCandidate;
-	
-	public Transition(S fromCandidate, S toCandidate) {
-		this.fromCandidate = fromCandidate;
-		this.toCandidate = toCandidate;
-	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(fromCandidate, toCandidate);
-	}
+    public S fromCandidate;
+    public S toCandidate;
+    
+    public Transition(S fromCandidate, S toCandidate) {
+        this.fromCandidate = fromCandidate;
+        this.toCandidate = toCandidate;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(fromCandidate, toCandidate);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		@SuppressWarnings("unchecked")
-		Transition<S> other = (Transition<S>) obj;
-		return Objects.equals(fromCandidate, other.fromCandidate) && Objects.equals(toCandidate, 
-				other.toCandidate);
-	}
-	
-	@Override
-	public String toString() {
-		return "Transition [fromCandidate=" + fromCandidate + ", toCandidate="
-				+ toCandidate + "]";
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        @SuppressWarnings("unchecked")
+        Transition<S> other = (Transition<S>) obj;
+        return Objects.equals(fromCandidate, other.fromCandidate) && Objects.equals(toCandidate, 
+                other.toCandidate);
+    }
+    
+    @Override
+    public String toString() {
+        return "Transition [fromCandidate=" + fromCandidate + ", toCandidate="
+                + toCandidate + "]";
+    }
 
-	
+    
 }
