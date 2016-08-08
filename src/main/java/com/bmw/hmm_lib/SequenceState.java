@@ -21,25 +21,25 @@ import java.util.Objects;
 
 /**
  * State of the most likely sequence with additional information.
- *  
+ *
  * @param <S> the state type
- * @param <O> the observation type 
+ * @param <O> the observation type
  * @param <D> the transition descriptor type
  */
 public class SequenceState<S, O, D> {
 
     public final S state;
-    
+
     /**
-     * Null if HMM was started with initial state probabilities and state is the initial state. 
+     * Null if HMM was started with initial state probabilities and state is the initial state.
      */
     public final O observation;
-    
+
     /**
      * Null if transition descriptor was not provided.
      */
     public final D transitionDescriptor;
-    
+
     public SequenceState(S state, O observation, D transitionDescriptor) {
         this.state = state;
         this.observation = observation;
@@ -71,5 +71,5 @@ public class SequenceState<S, O, D> {
                 Objects.equals(observation, other.observation) &&
                 Objects.equals(transitionDescriptor, other.transitionDescriptor);
     }
-    
+
 }

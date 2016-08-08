@@ -35,7 +35,7 @@ import com.bmw.hmm_lib.Transition;
 import com.bmw.hmm_lib.ViterbiAlgorithm;
 
 public class ViterbiAlgorithmTest {
-    
+
     private static class Rain {
         final static Rain T = new Rain();
         final static Rain F = new Rain();
@@ -71,7 +71,7 @@ public class ViterbiAlgorithmTest {
         final static Descriptor R2S = new Descriptor();
         final static Descriptor S2R = new Descriptor();
         final static Descriptor S2S = new Descriptor();
-        
+
         @Override
         public String toString() {
             if (this == R2R) {
@@ -86,7 +86,7 @@ public class ViterbiAlgorithmTest {
             throw new IllegalStateException();
         }
     }
-    
+
     private static double DELTA = 1e-8;
 
     private List<Rain> states(List<SequenceState<Rain, Umbrella, Descriptor>> sequenceStates) {
@@ -96,11 +96,11 @@ public class ViterbiAlgorithmTest {
         }
         return result;
     }
-    
+
     /**
      * Tests the Viterbi algorithms with the umbrella example taken from Russell, Norvig: Aritifical
      * Intelligence - A Modern Approach, 3rd edition, chapter 15.2.3. Note that the probabilities in
-     * Figure 15.5 are different, since the book uses initial probabilities and the probabilities 
+     * Figure 15.5 are different, since the book uses initial probabilities and the probabilities
      * for message m1:1 are normalized (not wrong but unnecessary).
      */
     @Test
@@ -112,34 +112,34 @@ public class ViterbiAlgorithmTest {
         final Map<Rain, Double> emissionLogProbabilitiesForUmbrella = new LinkedHashMap<>();
         emissionLogProbabilitiesForUmbrella.put(Rain.T, log(0.9));
         emissionLogProbabilitiesForUmbrella.put(Rain.F, log(0.2));
-        
+
         final Map<Rain, Double> emissionLogProbabilitiesForNoUmbrella = new LinkedHashMap<>();
         emissionLogProbabilitiesForNoUmbrella.put(Rain.T, log(0.1));
         emissionLogProbabilitiesForNoUmbrella.put(Rain.F, log(0.8));
-        
+
         final Map<Transition<Rain>, Double> transitionLogProbabilities = new LinkedHashMap<>();
         transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.T), log(0.7));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.F), log(0.3));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.T), log(0.3));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.F), log(0.7));
-        
+
         final Map<Transition<Rain>, Descriptor> transitionDescriptors = new LinkedHashMap<>();
         transitionDescriptors.put(new Transition<Rain>(Rain.T, Rain.T), Descriptor.R2R);
         transitionDescriptors.put(new Transition<Rain>(Rain.T, Rain.F), Descriptor.R2S);
         transitionDescriptors.put(new Transition<Rain>(Rain.F, Rain.T), Descriptor.S2R);
         transitionDescriptors.put(new Transition<Rain>(Rain.F, Rain.F), Descriptor.S2S);
-        
+
         final ViterbiAlgorithm<Rain, Umbrella, Descriptor> viterbi = new ViterbiAlgorithm<>(true);
-        viterbi.startWithInitialObservation(Umbrella.T, candidates, 
+        viterbi.startWithInitialObservation(Umbrella.T, candidates,
                 emissionLogProbabilitiesForUmbrella);
-        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella, 
+        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella,
                 transitionLogProbabilities, transitionDescriptors);
-        viterbi.nextStep(Umbrella.F, candidates, emissionLogProbabilitiesForNoUmbrella, 
+        viterbi.nextStep(Umbrella.F, candidates, emissionLogProbabilitiesForNoUmbrella,
                 transitionLogProbabilities, transitionDescriptors);
-        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella, 
+        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella,
                 transitionLogProbabilities, transitionDescriptors);
-        
-        final List<SequenceState<Rain, Umbrella, Descriptor>> result = 
+
+        final List<SequenceState<Rain, Umbrella, Descriptor>> result =
                 viterbi.computeMostLikelySequence();
 
         // Check most likely sequence
@@ -148,11 +148,11 @@ public class ViterbiAlgorithmTest {
         assertEquals(Rain.T, result.get(1).state);
         assertEquals(Rain.F, result.get(2).state);
         assertEquals(Rain.T, result.get(3).state);
-        
-        assertEquals(Umbrella.T, result.get(0).observation);        
+
+        assertEquals(Umbrella.T, result.get(0).observation);
         assertEquals(Umbrella.T, result.get(1).observation);
         assertEquals(Umbrella.F, result.get(2).observation);
-        assertEquals(Umbrella.T, result.get(3).observation);        
+        assertEquals(Umbrella.T, result.get(3).observation);
 
         assertEquals(null,           result.get(0).transitionDescriptor);
         assertEquals(Descriptor.R2R, result.get(1).transitionDescriptor);
@@ -206,7 +206,7 @@ public class ViterbiAlgorithmTest {
     @Test
     public void testEmptySequence() {
         final ViterbiAlgorithm<Rain, Umbrella, Descriptor> viterbi = new ViterbiAlgorithm<>();
-        final List<SequenceState<Rain, Umbrella, Descriptor>> result = 
+        final List<SequenceState<Rain, Umbrella, Descriptor>> result =
                 viterbi.computeMostLikelySequence();
 
         assertEquals(Arrays.asList(), result);
@@ -219,7 +219,7 @@ public class ViterbiAlgorithmTest {
         final List<Rain> candidates = new ArrayList<>();
         candidates.add(Rain.T);
         candidates.add(Rain.F);
-        
+
         final Map<Rain, Double> emissionLogProbabilities = new LinkedHashMap<>();
         emissionLogProbabilities.put(Rain.T, log(0.0));
         emissionLogProbabilities.put(Rain.F, log(0.0));
@@ -227,39 +227,39 @@ public class ViterbiAlgorithmTest {
         assertTrue(viterbi.isBroken());
         assertEquals(Arrays.asList(), viterbi.computeMostLikelySequence());
     }
-    
+
     @Test
     public void testEmptyInitialMessage() {
         final ViterbiAlgorithm<Rain, Umbrella, Descriptor> viterbi = new ViterbiAlgorithm<>();
-        viterbi.startWithInitialObservation(Umbrella.T, new ArrayList<Rain>(), 
+        viterbi.startWithInitialObservation(Umbrella.T, new ArrayList<Rain>(),
                 new LinkedHashMap<Rain, Double>());
         assertTrue(viterbi.isBroken());
         assertEquals(Arrays.asList(), viterbi.computeMostLikelySequence());
     }
-    
+
     @Test
     public void testBreakAtFirstTransition() {
         final ViterbiAlgorithm<Rain, Umbrella, Descriptor> viterbi = new ViterbiAlgorithm<>();
         final List<Rain> candidates = new ArrayList<>();
         candidates.add(Rain.T);
         candidates.add(Rain.F);
-        
+
         final Map<Rain, Double> emissionLogProbabilities = new LinkedHashMap<>();
         emissionLogProbabilities.put(Rain.T, log(0.9));
         emissionLogProbabilities.put(Rain.F, log(0.2));
         viterbi.startWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
         assertFalse(viterbi.isBroken());
-        
+
         final Map<Transition<Rain>, Double> transitionLogProbabilities = new LinkedHashMap<>();
         transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.T), log(0.0));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.F), log(0.0));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.T), log(0.0));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.F), log(0.0));
-        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilities, 
+        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilities,
                 transitionLogProbabilities);
-        
+
         assertTrue(viterbi.isBroken());
-        assertEquals(Arrays.asList(Rain.T), states(viterbi.computeMostLikelySequence()));        
+        assertEquals(Arrays.asList(Rain.T), states(viterbi.computeMostLikelySequence()));
     }
 
     @Test
@@ -268,53 +268,53 @@ public class ViterbiAlgorithmTest {
         final List<Rain> candidates = new ArrayList<>();
         candidates.add(Rain.T);
         candidates.add(Rain.F);
-        
+
         final Map<Rain, Double> emissionLogProbabilities = new LinkedHashMap<>();
         emissionLogProbabilities.put(Rain.T, log(0.9));
         emissionLogProbabilities.put(Rain.F, log(0.2));
         viterbi.startWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
         assertFalse(viterbi.isBroken());
-        
-        viterbi.nextStep(Umbrella.T, new ArrayList<Rain>(), new LinkedHashMap<Rain, Double>(), 
+
+        viterbi.nextStep(Umbrella.T, new ArrayList<Rain>(), new LinkedHashMap<Rain, Double>(),
                 new LinkedHashMap<Transition<Rain>, Double>());
         assertTrue(viterbi.isBroken());
-        
-        assertEquals(Arrays.asList(Rain.T), states(viterbi.computeMostLikelySequence()));        
+
+        assertEquals(Arrays.asList(Rain.T), states(viterbi.computeMostLikelySequence()));
     }
-    
+
     @Test
     public void testBreakAtSecondTransition() {
         final ViterbiAlgorithm<Rain, Umbrella, Descriptor> viterbi = new ViterbiAlgorithm<>();
         final List<Rain> candidates = new ArrayList<>();
         candidates.add(Rain.T);
         candidates.add(Rain.F);
-        
+
         final Map<Rain, Double> emissionLogProbabilities = new LinkedHashMap<>();
         emissionLogProbabilities.put(Rain.T, log(0.9));
         emissionLogProbabilities.put(Rain.F, log(0.2));
         viterbi.startWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
         assertFalse(viterbi.isBroken());
-        
+
         Map<Transition<Rain>, Double> transitionLogProbabilities = new LinkedHashMap<>();
         transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.T), log(0.5));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.F), log(0.5));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.T), log(0.5));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.F), log(0.5));
-        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilities, 
+        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilities,
                 transitionLogProbabilities);
-        assertFalse(viterbi.isBroken());        
+        assertFalse(viterbi.isBroken());
 
         transitionLogProbabilities = new LinkedHashMap<>();
         transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.T), log(0.0));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.F), log(0.0));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.T), log(0.0));
         transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.F), log(0.0));
-        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilities, 
+        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilities,
                 transitionLogProbabilities);
 
         assertTrue(viterbi.isBroken());
-        assertEquals(Arrays.asList(Rain.T, Rain.T), states(viterbi.computeMostLikelySequence()));        
+        assertEquals(Arrays.asList(Rain.T, Rain.T), states(viterbi.computeMostLikelySequence()));
     }
-    
-   
+
+
 }
