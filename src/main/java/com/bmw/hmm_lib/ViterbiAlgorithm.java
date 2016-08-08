@@ -138,7 +138,7 @@ public class ViterbiAlgorithm<S, O, D> {
      */
     public ViterbiAlgorithm(boolean keepMessageHistory) {
         if (keepMessageHistory) {
-            messageHistory = new ArrayList<Map<S, Double>>();
+            messageHistory = new ArrayList<>();
         }
     }
 
@@ -277,7 +277,7 @@ public class ViterbiAlgorithm<S, O, D> {
             throw new IllegalStateException("Message history was not recorded.");
         }
 
-        StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append("Message history with log probabilies\n\n");
         int i = 0;
         for (Map<S, Double> message : messageHistory) {
@@ -353,7 +353,7 @@ public class ViterbiAlgorithm<S, O, D> {
             Map<Transition<S>, Double> transitionLogProbabilities,
             Map<Transition<S>,D> transitionDescriptors) {
         final ForwardStepResult<S, O, D> result = new ForwardStepResult<>(curCandidates.size());
-        assert( !prevCandidates.isEmpty());
+        assert !prevCandidates.isEmpty();
 
         for (S curState : curCandidates) {
             double maxLogProbability = Double.NEGATIVE_INFINITY;
@@ -400,7 +400,7 @@ public class ViterbiAlgorithm<S, O, D> {
      */
     private S mostLikelyState() {
         // Otherwise an HMM break would have occurred and message would be null.
-        assert(!message.isEmpty());
+        assert !message.isEmpty();
 
         S result = null;
         double maxLogProbability = Double.NEGATIVE_INFINITY;
@@ -411,7 +411,7 @@ public class ViterbiAlgorithm<S, O, D> {
             }
         }
 
-        assert(result != null); // Otherwise an HMM break would have occurred.
+        assert result != null; // Otherwise an HMM break would have occurred.
         return result;
     }
 
@@ -420,7 +420,7 @@ public class ViterbiAlgorithm<S, O, D> {
      */
     private List<SequenceState<S, O, D>> retrieveMostLikelySequence() {
         // Otherwise an HMM break would have occurred and message would be null.
-        assert(!message.isEmpty());
+        assert !message.isEmpty();
 
         final S lastState = mostLikelyState();
 

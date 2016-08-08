@@ -25,8 +25,8 @@ import java.util.Objects;
  * @param <S> the state type
  */
 public class Transition<S> {
-    public S fromCandidate;
-    public S toCandidate;
+    public final S fromCandidate;
+    public final S toCandidate;
 
     public Transition(S fromCandidate, S toCandidate) {
         this.fromCandidate = fromCandidate;
