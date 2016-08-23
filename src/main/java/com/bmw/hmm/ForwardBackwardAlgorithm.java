@@ -24,24 +24,26 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Objects;
 
 /**
- * Computes the forward / backward algorithm, also known as smoothing.
- * This algorithm computes the probability of each state candidate given the entire observation
- * sequence.
+ * Computes the forward-backward algorithm, also known as smoothing.
+ * This algorithm computes the probability of each state candidate at each time step given the
+ * entire observation sequence.
  *
  * @param <S> the state type
  * @param <O> the observation type
  */
 public class ForwardBackwardAlgorithm<S, O> {
 
+    /**
+     * Internal state of each time step.
+     */
     private class Step {
         final Collection<S> candidates;
         final Map<S, Double> emissionProbabilities;
         final Map<Transition<S>, Double> transitionProbabilities;
         final Map<S, Double> forwardProbabilities;
-        final double scalingDivisor;
+        final double scalingDivisor; // Normalizes sum of forward probabilities to 1.
 
         Step(Collection<S> candidates, Map<S, Double> emissionProbabilities,
                 Map<Transition<S>, Double> transitionProbabilities,
@@ -52,11 +54,12 @@ public class ForwardBackwardAlgorithm<S, O> {
             this.forwardProbabilities = forwardProbabilities;
             this.scalingDivisor = scalingDivisor;
         }
-
     }
 
+    private final double DELTA = 1e-8;
+
     private List<Step> steps;
-    private Collection<S> prevCandidates; // for on-the-fly computation of forward probabilities
+    private Collection<S> prevCandidates; // For on-the-fly computation of forward probabilities
 
     /**
      * Lets the computation start with the given initial state probabilities.
@@ -72,12 +75,12 @@ public class ForwardBackwardAlgorithm<S, O> {
      * {@link #startWithInitialObservation(Object, Collection, Map)} has already been called
      */
     public void startWithInitialStateProbabilities(Collection<S> initialStates,
-    		Map<S, Double> initialProbabilities) {
+            Map<S, Double> initialProbabilities) {
         if (!sumsToOne(initialProbabilities.values())) {
             throw new IllegalArgumentException("Initial state probabilities must sum to 1.");
         }
 
-    	initializeStateProbabilities(null, initialStates, initialProbabilities);
+        initializeStateProbabilities(null, initialStates, initialProbabilities);
     }
 
     /**
@@ -86,7 +89,7 @@ public class ForwardBackwardAlgorithm<S, O> {
      * @param candidates Pass a collection with predictable iteration order such as
      * {@link ArrayList} to ensure deterministic results.
      *
-     * @param emissionLogProbabilities Emission log probabilities of the first observation for
+     * @param emissionProbabilities Emission probabilities of the first observation for
      * each of the road position candidates.
      *
      * @throws NullPointerException if any emission probability is missing
@@ -95,8 +98,8 @@ public class ForwardBackwardAlgorithm<S, O> {
      * {@link #startWithInitialStateProbabilities(Collection, Map)}} has already been called
      */
     public void startWithInitialObservation(O observation, Collection<S> candidates,
-    		Map<S, Double> emissionProbabilities) {
-    	initializeStateProbabilities(observation, candidates, emissionProbabilities);
+            Map<S, Double> emissionProbabilities) {
+        initializeStateProbabilities(observation, candidates, emissionProbabilities);
     }
 
     /**
@@ -117,34 +120,41 @@ public class ForwardBackwardAlgorithm<S, O> {
      * {@link #startWithInitialObservation(Object, Collection, Map)} has not been called before
      */
     public void nextStep(O observation, Collection<S> candidates,
-    		Map<S, Double> emissionProbabilities,
-    		Map<Transition<S>, Double> transitionProbabilities) {
-    	if (steps == null) {
-    	    throw new IllegalStateException("startWithInitialStateProbabilities(...) or " +
-    	            "startWithInitialObservation(...) must be called first.");
-    	}
+            Map<S, Double> emissionProbabilities,
+            Map<Transition<S>, Double> transitionProbabilities) {
+        if (steps == null) {
+            throw new IllegalStateException("startWithInitialStateProbabilities(...) or " +
+                    "startWithInitialObservation(...) must be called first.");
+        }
 
-    	// Note that on-the-fly computation of forward probabilities enables on-the-fly
-    	// checking and handling of HMM breaks.
-    	final Map<S, Double> prevForwardProbabilities =
-    			steps.get(steps.size() - 1).forwardProbabilities;
-    	final Map<S, Double> curForwardProbabilities = new LinkedHashMap<>();
-    	double sum = 0.0;
-    	for (S curState : candidates) {
-    		final double forwardProbability = computeForwardProbability(curState,
-    				prevForwardProbabilities, emissionProbabilities, transitionProbabilities);
-    		curForwardProbabilities.put(curState, forwardProbability);
-    		sum += forwardProbability;
-    	}
+        // Make defensive copies.
+        candidates = new ArrayList<>(candidates);
+        emissionProbabilities = new LinkedHashMap<>(emissionProbabilities);
+        transitionProbabilities = new LinkedHashMap<>(transitionProbabilities);
 
-    	normalizeForwardProbabilities(curForwardProbabilities, sum);
+        // On-the-fly computation of forward probabilities at each step allows to efficiently
+        // (re)compute smoothing probabilities at any time step.
+        final Map<S, Double> prevForwardProbabilities =
+                steps.get(steps.size() - 1).forwardProbabilities;
+        final Map<S, Double> curForwardProbabilities = new LinkedHashMap<>();
+        double sum = 0.0;
+        for (S curState : candidates) {
+            final double forwardProbability = computeForwardProbability(curState,
+                    prevForwardProbabilities, emissionProbabilities, transitionProbabilities);
+            curForwardProbabilities.put(curState, forwardProbability);
+            sum += forwardProbability;
+        }
+
+        normalizeForwardProbabilities(curForwardProbabilities, sum);
         steps.add(new Step(candidates, emissionProbabilities, transitionProbabilities,
                 curForwardProbabilities, sum));
+
+        prevCandidates = candidates;
     }
 
     /**
      * Returns the probability for all candidates of all time steps given all observations.
-     * The time steps include the initial states / initial observation time step.
+     * The time steps include the initial states/observations time step.
      */
     public List<Map<S, Double>> computeSmoothingProbabilities() {
         return computeSmoothingProbabilities(null);
@@ -155,7 +165,9 @@ public class ForwardBackwardAlgorithm<S, O> {
      * given the observations up to t.
      */
     public double forwardProbability(int t, S candidate) {
-        Objects.requireNonNull(steps, "No time steps yet.");
+        if (steps == null) {
+            throw new IllegalStateException("No time steps yet.");
+        }
 
         return steps.get(t).forwardProbabilities.get(candidate);
     }
@@ -164,7 +176,9 @@ public class ForwardBackwardAlgorithm<S, O> {
      * Returns the probability of the specified candidate given all previous observations.
      */
     public double currentForwardProbability(S candidate) {
-        Objects.requireNonNull(steps, "No time steps yet.");
+        if (steps == null) {
+            throw new IllegalStateException("No time steps yet.");
+        }
 
         return forwardProbability(steps.size() - 1, candidate);
     }
@@ -188,7 +202,8 @@ public class ForwardBackwardAlgorithm<S, O> {
     /**
      * @see #computeSmoothingProbabilities()
      *
-     * @param outBackwardProbabilities optional output parameter for backward probabilities
+     * @param outBackwardProbabilities optional output parameter for backward probabilities,
+     * must be empty if not null.
      */
     List<Map<S, Double>> computeSmoothingProbabilities(
             List<Map<S, Double>> outBackwardProbabilities) {
@@ -230,8 +245,8 @@ public class ForwardBackwardAlgorithm<S, O> {
             if (outBackwardProbabilities != null) {
                 outBackwardProbabilities.add(backwardProbabilities);
             }
-            result.add(computeSmoothingProbabilitiesVector(step.candidates, step.forwardProbabilities,
-                    backwardProbabilities));
+            result.add(computeSmoothingProbabilitiesVector(step.candidates,
+                    step.forwardProbabilities, backwardProbabilities));
         }
         Collections.reverse(result);
         return result;
@@ -244,6 +259,7 @@ public class ForwardBackwardAlgorithm<S, O> {
         for (S state : candidates) {
             final double probability = forwardProbabilities.get(state)
                     * backwardProbabilities.get(state);
+            assert Utils.probabilityInRange(probability, DELTA);
             result.put(state, probability);
         }
         assert sumsToOne(result.values());
@@ -258,59 +274,61 @@ public class ForwardBackwardAlgorithm<S, O> {
                     nextBackwardProbabilities.get(nextCandidate) * transitionProbability(
                     candidate, nextCandidate, nextStep.transitionProbabilities);
         }
-        // Divide by scaling divisor of nextStep
         return result;
     }
 
     private boolean sumsToOne(Collection<Double> probabilities) {
-        final double DELTA = 1e-8;
         double sum = 0.0;
         for (double probability : probabilities) {
             sum += probability;
         }
-        return Math.abs(sum - 1.0) < DELTA;
+        return Math.abs(sum - 1.0) <= DELTA;
     }
 
     /**
      * @param observation Use only if HMM only starts with first observation.
      */
     private void initializeStateProbabilities(O observation, Collection<S> candidates,
-    		Map<S, Double> initialProbabilities) {
-    	if (steps != null) {
-    		throw new IllegalStateException("Initial probabilities have already been set.");
-    	}
+            Map<S, Double> initialProbabilities) {
+        if (steps != null) {
+            throw new IllegalStateException("Initial probabilities have already been set.");
+        }
 
+        candidates = new ArrayList<>(candidates); // Defensive copy
         steps = new ArrayList<>();
 
-    	final Map<S, Double> forwardProbabilities = new LinkedHashMap<>();
-    	double sum = 0.0;
-    	for (S candidate : candidates) {
-    		final double forwardProbability = initialProbabilities.get(candidate);
-    		forwardProbabilities.put(candidate, forwardProbability);
-    		sum += forwardProbability;
-    	}
+        final Map<S, Double> forwardProbabilities = new LinkedHashMap<>();
+        double sum = 0.0;
+        for (S candidate : candidates) {
+            final double forwardProbability = initialProbabilities.get(candidate);
+            forwardProbabilities.put(candidate, forwardProbability);
+            sum += forwardProbability;
+        }
 
-    	normalizeForwardProbabilities(forwardProbabilities, sum);
-    	steps.add(new Step(candidates, null, null, forwardProbabilities, sum));
+        normalizeForwardProbabilities(forwardProbabilities, sum);
+        steps.add(new Step(candidates, null, null, forwardProbabilities, sum));
 
-    	prevCandidates = candidates;
+        prevCandidates = candidates;
     }
 
     /**
      * Returns the non-normalized forward probability of the specified state.
      */
-	private double computeForwardProbability(S curState,
-			Map<S, Double> prevForwardProbabilities, Map<S, Double> emissionProbabilities,
-			Map<Transition<S>, Double> transitionProbabilities) {
-		double result = 0.0;
-		for (S prevState : prevCandidates) {
-			result += prevForwardProbabilities.get(prevState) *
-					transitionProbability(prevState, curState, transitionProbabilities);
-		}
-		result *= emissionProbabilities.get(curState);
-		return result;
-	}
+    private double computeForwardProbability(S curState,
+            Map<S, Double> prevForwardProbabilities, Map<S, Double> emissionProbabilities,
+            Map<Transition<S>, Double> transitionProbabilities) {
+        double result = 0.0;
+        for (S prevState : prevCandidates) {
+            result += prevForwardProbabilities.get(prevState) *
+                    transitionProbability(prevState, curState, transitionProbabilities);
+        }
+        result *= emissionProbabilities.get(curState);
+        return result;
+    }
 
+    /**
+     * Returns zero probability for non-existing transitions.
+     */
     private double transitionProbability(S prevState, S curState,
             Map<Transition<S>, Double> transitionProbabilities) {
         final Double transitionProbability =
@@ -318,11 +336,11 @@ public class ForwardBackwardAlgorithm<S, O> {
         return transitionProbability == null ? 0.0 : transitionProbability;
     }
 
-	private void normalizeForwardProbabilities(
-			Map<S, Double> forwardProbabilities, double sum) {
-		for (Map.Entry<S, Double> entry : forwardProbabilities.entrySet()) {
-    		forwardProbabilities.put(entry.getKey(), entry.getValue() / sum);
-    	}
-	}
+    private void normalizeForwardProbabilities(
+            Map<S, Double> forwardProbabilities, double sum) {
+        for (Map.Entry<S, Double> entry : forwardProbabilities.entrySet()) {
+            forwardProbabilities.put(entry.getKey(), entry.getValue() / sum);
+        }
+    }
 
 }
