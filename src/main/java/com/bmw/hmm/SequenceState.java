@@ -38,6 +38,9 @@ public class SequenceState<S, O, D> {
      */
     public final D transitionDescriptor;
 
+    /**
+     * Probability of this state given all observations.
+     */
     public final Double smoothingProbability;
 
     public SequenceState(S state, O observation, D transitionDescriptor, Double smoothingProbability) {

@@ -56,7 +56,7 @@ public class ForwardBackwardAlgorithm<S, O> {
         }
     }
 
-    private final double DELTA = 1e-8;
+    private static final double DELTA = 1e-8;
 
     private List<Step> steps;
     private Collection<S> prevCandidates; // For on-the-fly computation of forward probabilities

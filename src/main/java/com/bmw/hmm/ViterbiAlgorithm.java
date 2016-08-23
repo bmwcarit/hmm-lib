@@ -284,11 +284,17 @@ public class ViterbiAlgorithm<S, O, D> {
         return isBroken;
     }
 
+    /**
+     * @see ViterbiAlgorithmParams
+     */
     public boolean isComputeSmoothingProbabilities() {
         return forwardBackward != null;
     }
 
-    public boolean keepMessageHistory() {
+    /**
+     * @see ViterbiAlgorithmParams
+     */
+    public boolean isKeepMessageHistory() {
         return messageHistory != null;
     }
 
@@ -466,10 +472,9 @@ public class ViterbiAlgorithm<S, O, D> {
         while(es != null) {
             final Double smoothingProbability;
             if (forwardBackward != null) {
-                Map<S, Double> smoothingProbabilitiesVector = null;
                 // Number of time steps is the same for Viterbi and ForwardBackward algorithm.
                 assert smoothingIter.hasPrevious();
-                smoothingProbabilitiesVector = smoothingIter.previous();
+                final Map<S, Double> smoothingProbabilitiesVector = smoothingIter.previous();
                 smoothingProbability = smoothingProbabilitiesVector.get(es.state);
             } else {
                 smoothingProbability = null;
