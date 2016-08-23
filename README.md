@@ -41,7 +41,7 @@ To use this library, add the following to your pom.xml:
 <dependency>
   <groupId>com.bmw.hmm</groupId>
   <artifactId>hmm-lib</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
