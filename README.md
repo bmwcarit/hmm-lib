@@ -65,6 +65,10 @@ Contributions are welcome! For bug reports, please create an issue.
 For code contributions (e.g. new features or bugfixes), please create a pull request.
 
 # Changes
+* 1.1.0:
+  * Add forward-backward algorithm, which performs smoothing on the hidden state variables.
+  * The Viterbi algorithm now optionally returns smoothing probabilities for the states of the
+    most likely sequence.   
 * 1.0.0:
   * API redesign to allow calling the Viterbi algorithm iteratively. This gives the library user
    increased flexibility and optimization opportunities when computing transition and observation
