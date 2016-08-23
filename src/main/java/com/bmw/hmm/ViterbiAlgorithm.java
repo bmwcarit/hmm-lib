@@ -223,7 +223,7 @@ public class ViterbiAlgorithm<S, O, D> {
         message = forwardStepResult.newMessage;
         lastExtendedStates = forwardStepResult.newExtendedStates;
 
-        prevCandidates = candidates;
+        prevCandidates = new ArrayList<>(candidates); // Defensive copy.
     }
 
     /**
@@ -339,7 +339,7 @@ public class ViterbiAlgorithm<S, O, D> {
                     new ExtendedState<S, O, D>(candidate, null, observation, null));
         }
 
-        prevCandidates = candidates;
+        prevCandidates = new ArrayList<>(candidates); // Defensive copy.
     }
 
     /**
