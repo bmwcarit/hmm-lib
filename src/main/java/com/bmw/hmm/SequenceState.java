@@ -17,8 +17,6 @@
 
 package com.bmw.hmm;
 
-import java.util.Objects;
-
 /**
  * State of the most likely sequence with additional information.
  *
@@ -40,36 +38,13 @@ public class SequenceState<S, O, D> {
      */
     public final D transitionDescriptor;
 
-    public SequenceState(S state, O observation, D transitionDescriptor) {
+    public final Double smoothingProbability;
+
+    public SequenceState(S state, O observation, D transitionDescriptor, Double smoothingProbability) {
         this.state = state;
         this.observation = observation;
         this.transitionDescriptor = transitionDescriptor;
-    }
-
-    @Override
-    public String toString() {
-        return "SequenceState [state=" + state + ", observation=" + observation
-                + ", transitionDescriptor=" + transitionDescriptor
-                + "]";
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(state, observation, transitionDescriptor);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        SequenceState<?, ?, ?> other = (SequenceState<?, ?, ?>) obj;
-        return Objects.equals(state, other.state) &&
-                Objects.equals(observation, other.observation) &&
-                Objects.equals(transitionDescriptor, other.transitionDescriptor);
+        this.smoothingProbability = smoothingProbability;
     }
 
 }

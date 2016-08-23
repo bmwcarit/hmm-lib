@@ -129,7 +129,9 @@ public class ViterbiAlgorithmTest {
         transitionDescriptors.put(new Transition<Rain>(Rain.F, Rain.T), Descriptor.S2R);
         transitionDescriptors.put(new Transition<Rain>(Rain.F, Rain.F), Descriptor.S2S);
 
-        final ViterbiAlgorithm<Rain, Umbrella, Descriptor> viterbi = new ViterbiAlgorithm<>(true);
+        final ViterbiAlgorithm<Rain, Umbrella, Descriptor> viterbi =
+                new ViterbiAlgorithm<>(new ViterbiAlgorithmParams().setKeepMessageHistory(true).
+                setComputeSmoothingProbabilities(true));
         viterbi.startWithInitialObservation(Umbrella.T, candidates,
                 emissionLogProbabilitiesForUmbrella);
         viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella,

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -121,6 +122,8 @@ public class ViterbiAlgorithm<S, O, D> {
 
     private boolean isBroken = false;
 
+    private ForwardBackwardAlgorithm<S, O> forwardBackward;
+
     private List<Map<S, Double>> messageHistory; // For debugging only.
 
     /**
@@ -128,17 +131,18 @@ public class ViterbiAlgorithm<S, O, D> {
      * Does not keep the message history.
      */
     public ViterbiAlgorithm() {
-        this(false);
+        this(new ViterbiAlgorithmParams());
     }
 
     /**
      * Need to construct a new instance for each sequence of observations.
-     * @param keepMessageHistory Whether to store intermediate forward messages
-     * (probabilities of intermediate most likely paths) for debugging.
      */
-    public ViterbiAlgorithm(boolean keepMessageHistory) {
-        if (keepMessageHistory) {
+    public ViterbiAlgorithm(ViterbiAlgorithmParams params) {
+        if (params.isKeepMessageHistory()) {
             messageHistory = new ArrayList<>();
+        }
+        if (params.isComputeSmoothingProbabilities()) {
+            forwardBackward = new ForwardBackwardAlgorithm<>();
         }
     }
 
@@ -158,6 +162,11 @@ public class ViterbiAlgorithm<S, O, D> {
     public void startWithInitialStateProbabilities(Collection<S> initialStates,
             Map<S, Double> initialLogProbabilities) {
         initializeStateProbabilities(null, initialStates, initialLogProbabilities);
+
+        if (forwardBackward != null) {
+            forwardBackward.startWithInitialStateProbabilities(initialStates,
+                    Utils.logToNonLogProbabilities(initialLogProbabilities));
+        }
     }
 
     /**
@@ -177,6 +186,11 @@ public class ViterbiAlgorithm<S, O, D> {
     public void startWithInitialObservation(O observation, Collection<S> candidates,
             Map<S, Double> emissionLogProbabilities) {
         initializeStateProbabilities(observation, candidates, emissionLogProbabilities);
+
+        if (forwardBackward != null) {
+            forwardBackward.startWithInitialObservation(observation, candidates,
+                    Utils.logToNonLogProbabilities(emissionLogProbabilities));
+        }
     }
 
     /**
@@ -224,6 +238,12 @@ public class ViterbiAlgorithm<S, O, D> {
         lastExtendedStates = forwardStepResult.newExtendedStates;
 
         prevCandidates = candidates;
+
+        if (forwardBackward != null) {
+            forwardBackward.nextStep(observation, candidates,
+                    Utils.logToNonLogProbabilities(emissionLogProbabilities),
+                    Utils.logToNonLogProbabilities(transitionLogProbabilities));
+        }
     }
 
     /**
@@ -262,6 +282,14 @@ public class ViterbiAlgorithm<S, O, D> {
      */
     public boolean isBroken() {
         return isBroken;
+    }
+
+    public boolean isComputeSmoothingProbabilities() {
+        return forwardBackward != null;
+    }
+
+    public boolean keepMessageHistory() {
+        return messageHistory != null;
     }
 
     /**
@@ -427,9 +455,27 @@ public class ViterbiAlgorithm<S, O, D> {
         // Retrieve most likely state sequence in reverse order
         final List<SequenceState<S, O, D>> result = new ArrayList<>();
         ExtendedState<S, O, D> es = lastExtendedStates.get(lastState);
+        final ListIterator<Map<S, Double>> smoothingIter;
+        if (forwardBackward != null) {
+            List<Map<S, Double>> smoothingProbabilities =
+                    forwardBackward.computeSmoothingProbabilities();
+            smoothingIter = smoothingProbabilities.listIterator(smoothingProbabilities.size());
+        } else {
+            smoothingIter = null;
+        }
         while(es != null) {
+            final Double smoothingProbability;
+            if (forwardBackward != null) {
+                Map<S, Double> smoothingProbabilitiesVector = null;
+                // Number of time steps is the same for Viterbi and ForwardBackward algorithm.
+                assert smoothingIter.hasPrevious();
+                smoothingProbabilitiesVector = smoothingIter.previous();
+                smoothingProbability = smoothingProbabilitiesVector.get(es.state);
+            } else {
+                smoothingProbability = null;
+            }
             final SequenceState<S, O, D> ss = new SequenceState<>(es.state, es.observation,
-                    es.transitionDescriptor);
+                    es.transitionDescriptor, smoothingProbability);
             result.add(ss);
             es = es.backPointer;
         }
