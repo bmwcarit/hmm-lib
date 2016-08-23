@@ -268,11 +268,11 @@ public class ViterbiAlgorithm<S, O, D> {
      *  Returns the sequence of intermediate forward messages for each time step.
      *  Returns null if message history is not kept.
      */
-    List<Map<S, Double>> messageHistory() {
+    public List<Map<S, Double>> messageHistory() {
         return messageHistory;
     }
 
-    String messageHistoryString() {
+    public String messageHistoryString() {
         if (messageHistory == null) {
             throw new IllegalStateException("Message history was not recorded.");
         }
