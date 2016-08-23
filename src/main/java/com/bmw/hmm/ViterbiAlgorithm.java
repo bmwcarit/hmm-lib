@@ -170,7 +170,7 @@ public class ViterbiAlgorithm<S, O, D> {
     }
 
     /**
-     * Lets the HMM computation starts at the given first observation and uses the given emission
+     * Lets the HMM computation start at the given first observation and uses the given emission
      * probabilities as the initial state probability for each starting state s.
      *
      * @param candidates Pass a collection with predictable iteration order such as
@@ -257,13 +257,13 @@ public class ViterbiAlgorithm<S, O, D> {
     }
 
     /**
-     * Returns the most likely sequence of states for all time steps.
-     * Formally, this is argmax p(s_1, ..., s_T | o_1, ..., o_T) with respect to s_1, ..., s_T,
-     * where s_t is a state candidate at time step t, o_t is the observation at time step t and T is
-     * the number of time steps.
+     * Returns the most likely sequence of states for all time steps. This includes the initial
+     * states / initial observation time step. If an HMM break occurred in the last time step t,
+     * then the most likely sequence up to t-1 is returned. See also {@link #isBroken()}.
      *
-     * If an HMM break occurred in the last time step t, then the most likely sequence up to t-1 is
-     * returned. See also {@link #isBroken()}.
+     * <p>Formally, the most likely sequence is argmax p([s_0,] s_1, ..., s_T | o_1, ..., o_T)
+     * with respect to s_1, ..., s_T, where s_t is a state candidate at time step t,
+     * o_t is the observation at time step t and T is the number of time steps.
      */
     public List<SequenceState<S, O, D>> computeMostLikelySequence() {
         if (message == null) {
