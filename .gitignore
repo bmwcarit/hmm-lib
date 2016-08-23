@@ -3,4 +3,6 @@
 .classpath
 .project
 .settings/
+/deploy_snapshot.sh
+/deploy_release.sh
 *~

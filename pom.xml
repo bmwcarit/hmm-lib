@@ -18,9 +18,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
  ~ limitations under the License.
   -->
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.bmw.hmm_lib</groupId>
+  <groupId>com.bmw.hmm</groupId>
   <artifactId>hmm-lib</artifactId>
-  <version>0.2.1-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>hmm-lib</name>
@@ -31,7 +31,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     <developer>
     <organization>BMW Car IT GmbH, BMW AG</organization>
       <organizationUrl>http://www.bmw-carit.com, http://www.bmw.com</organizationUrl>
-     </developer>
+    </developer>
   </developers>
 
   <licenses>
@@ -42,63 +42,29 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     </license>
   </licenses>
   
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <github.global.server>github</github.global.server>
-  </properties>
-
   <scm>
     <connection>scm:git:git@github.com:bmwcarit/hmm-lib.git</connection>
     <developerConnection>scm:git:git@github.com:bmwcarit/hmm-lib.git</developerConnection>
     <url>git@github.com:bmwcarit/hmm-lib</url>
   </scm>
 
-  <build>
-    <plugins>
-    	
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>hmm-lib-snapshots</id>
+        <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-snapshots/</url>
+    </snapshotRepository>
 
-	    <plugin>
-	      <artifactId>maven-deploy-plugin</artifactId>
-	      <version>2.8.1</version>
-	      <configuration>
-	        <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
-	      </configuration>
-	    </plugin>
-	    
-      <plugin>
-        <groupId>com.github.github</groupId>
-        <artifactId>site-maven-plugin</artifactId>
-        <version>0.11</version>
-        <configuration>
-          <message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
-          <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
-          <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
-          <branch>refs/heads/mvn-repo</branch>                       <!-- remote branch name -->
-          <includes><include>**/*</include></includes>
-        </configuration>
-        <executions>
-          <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
-          <execution>
-            <goals>
-              <goal>site</goal>
-            </goals>
-            <phase>deploy</phase>
-          </execution>
-        </executions>
-      </plugin>	    
-
-    </plugins>
-  </build>
+    <repository>
+      <id>hmm-lib-releases</id>
+        <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-releases/</url>
+    </repository>
+  </distributionManagement>
   
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -107,13 +73,62 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <version>4.11</version>
     </dependency>
   </dependencies>
-  
-  <distributionManagement>
-    <repository>
-      <id>internal.repo</id>
-      <name>Temporary Staging Repository</name>
-      <url>file://${project.build.directory}/mvn-repo</url>
-    </repository>
-  </distributionManagement>
-  
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.4</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <phase>deploy</phase>
+              <goals><goal>jar-no-fork</goal></goals> 
+            </execution>
+          </executions>        
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.3</version>
+          <executions> 
+            <execution> 
+              <id>attach-javadocs</id>
+              <phase>deploy</phase>
+              <goals><goal>jar</goal></goals> 
+            </execution> 
+          </executions>         
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.6</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.6</version>
+      </plugin>
+        <plugin> 
+          <!-- Forces execution order -->
+          <artifactId>maven-deploy-plugin</artifactId> 
+          <executions> 
+            <execution> 
+              <id>deploy</id>
+              <phase>deploy</phase>
+              <goals><goal>deploy</goal></goals> 
+            </execution> 
+          </executions> 
+        </plugin>      
+    </plugins>
+  </build>
 </project>
