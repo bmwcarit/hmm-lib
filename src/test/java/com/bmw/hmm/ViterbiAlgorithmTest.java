@@ -316,5 +316,50 @@ public class ViterbiAlgorithmTest {
         assertEquals(Arrays.asList(Rain.T, Rain.T), states(viterbi.computeMostLikelySequence()));
     }
 
+    @Test
+    /**
+     * Checks if the first candidate is returned if multiple candidates are equally likely.
+     */
+    public void testDeterministicCandidateOrder() {
+        final List<Rain> candidates = new ArrayList<>();
+        candidates.add(Rain.T);
+        candidates.add(Rain.F);
+
+        // Reverse usual order of emission and transition probabilities keys since their order
+        // should not matter.
+        final Map<Rain, Double> emissionLogProbabilitiesForUmbrella = new LinkedHashMap<>();
+        emissionLogProbabilitiesForUmbrella.put(Rain.F, log(0.5));
+        emissionLogProbabilitiesForUmbrella.put(Rain.T, log(0.5));
+
+        final Map<Rain, Double> emissionLogProbabilitiesForNoUmbrella = new LinkedHashMap<>();
+        emissionLogProbabilitiesForNoUmbrella.put(Rain.F, log(0.5));
+        emissionLogProbabilitiesForNoUmbrella.put(Rain.T, log(0.5));
+
+        final Map<Transition<Rain>, Double> transitionLogProbabilities = new LinkedHashMap<>();
+        transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.T), log(0.5));
+        transitionLogProbabilities.put(new Transition<Rain>(Rain.F, Rain.F), log(0.5));
+        transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.T), log(0.5));
+        transitionLogProbabilities.put(new Transition<Rain>(Rain.T, Rain.F), log(0.5));
+
+        final ViterbiAlgorithm<Rain, Umbrella, Descriptor> viterbi = new ViterbiAlgorithm<>(true);
+        viterbi.startWithInitialObservation(Umbrella.T, candidates,
+                emissionLogProbabilitiesForUmbrella);
+        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella,
+                transitionLogProbabilities);
+        viterbi.nextStep(Umbrella.F, candidates, emissionLogProbabilitiesForNoUmbrella,
+                transitionLogProbabilities);
+        viterbi.nextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella,
+                transitionLogProbabilities);
+
+        final List<SequenceState<Rain, Umbrella, Descriptor>> result =
+                viterbi.computeMostLikelySequence();
+
+        // Check most likely sequence
+        assertEquals(4, result.size());
+        assertEquals(Rain.T, result.get(0).state);
+        assertEquals(Rain.T, result.get(1).state);
+        assertEquals(Rain.T, result.get(2).state);
+        assertEquals(Rain.T, result.get(3).state);
+    }
 
 }
