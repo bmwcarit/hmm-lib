@@ -49,15 +49,15 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   </scm>
 
   <distributionManagement>
-    <snapshotRepository>
-      <id>hmm-lib-snapshots</id>
-        <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-snapshots/</url>
-    </snapshotRepository>
-
     <repository>
       <id>hmm-lib-releases</id>
         <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-releases/</url>
     </repository>
+
+    <snapshotRepository>
+      <id>hmm-lib-snapshots</id>
+        <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-snapshots/</url>
+    </snapshotRepository>
   </distributionManagement>
   
   <properties>

@@ -38,26 +38,38 @@ Except for testing, there are no dependencies to other libraries.
 To use this library, add the following to your pom.xml:
 
 ```
-<dependency>
-  <groupId>com.bmw.hmm</groupId>
-  <artifactId>hmm-lib</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-</dependency>
+  <dependencies>
+    ...
+    <dependency>
+      <groupId>com.bmw.hmm</groupId>
+      <artifactId>hmm-lib</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    ...
+    <repository>
+      <id>hmm-lib-releases</id>
+      <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-releases/</url>
+    </repository>
+  </repositories>
 ```
+
 
 If you want to use snapshots, add
 ```
-<repositories>
-  ...
-  <repository>
-    <id>hmm-lib-snapshots</id>
-    <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-snapshots/</url>
-    <snapshots>
-      <enabled>true</enabled>
-      <updatePolicy>always</updatePolicy>
-    </snapshots>
-  </repository>
-</repositories>
+  <repositories>
+    ...
+    <repository>
+      <id>hmm-lib-snapshots</id>
+      <url>https://raw.github.com/bmwcarit/hmm-lib/mvn-snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
 ```
 
 # Contribute
