@@ -4,9 +4,10 @@ This library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov
 This means that, in contrast to many other HMM implementations, there can be different
 states and a different transition matrix at each time step.
 
-Currently, this library provides an implementation of the Viterbi algorithm, which computes the
-most likely sequence of states. More HMM algorithms such as the forward backward algorithm will
-follow.
+This library provides an implementation of
+* The Viterbi algorithm, which computes the most likely sequence of states.
+* The forward-backward algorithm, which computes the probability of all state candidates given
+the entire sequence of observations. This process is also called smoothing.
 
 # Applications
 
