@@ -128,22 +128,55 @@ public class ViterbiAlgorithm<S, O, D> {
 
     /**
      * Need to construct a new instance for each sequence of observations.
-     * Does not keep the message history.
      */
-    public ViterbiAlgorithm() {
-        this(new ViterbiAlgorithmParams());
+    public ViterbiAlgorithm() { }
+
+    /**
+     * Whether to store intermediate forward messages
+     * (probabilities of intermediate most likely paths) for debugging.
+     * Default: false
+     * Must be called before processing is started.
+     */
+    public ViterbiAlgorithm<S, O, D> setKeepMessageHistory(boolean keepMessageHistory) {
+        if (processingStarted()) {
+            throw new IllegalStateException("Processing has already started.");
+        }
+
+        if (keepMessageHistory) {
+            messageHistory = new ArrayList<>();
+        } else {
+            messageHistory = null;
+        }
+        return this;
     }
 
     /**
-     * Need to construct a new instance for each sequence of observations.
+     * Whether to compute smoothing probabilities using the {@link ForwardBackwardAlgorithm}
+     * for the states of the most likely sequence. Note that this significantly increases
+     * computation time and memory footprint.
+     * Default: false
+     * Must be called before processing is started.
      */
-    public ViterbiAlgorithm(ViterbiAlgorithmParams params) {
-        if (params.isKeepMessageHistory()) {
-            messageHistory = new ArrayList<>();
+    public ViterbiAlgorithm<S, O, D> setComputeSmoothingProbabilities(
+            boolean computeSmoothingProbabilities) {
+        if (processingStarted()) {
+            throw new IllegalStateException("Processing has already started.");
         }
-        if (params.isComputeSmoothingProbabilities()) {
+
+        if (computeSmoothingProbabilities) {
             forwardBackward = new ForwardBackwardAlgorithm<>();
+        } else {
+            forwardBackward = null;
         }
+        return this;
+    }
+
+    /**
+     * Returns whether {@link #startWithInitialObservation(Object, Collection, Map)}
+     * or {@link #startWithInitialStateProbabilities(Collection, Map)} has already been called.
+     */
+    public boolean processingStarted() {
+        return message != null;
     }
 
     /**
@@ -216,7 +249,7 @@ public class ViterbiAlgorithm<S, O, D> {
             Map<S, Double> emissionLogProbabilities,
             Map<Transition<S>, Double> transitionLogProbabilities,
             Map<Transition<S>, D> transitionDescriptors) {
-        if (message == null) {
+        if (!processingStarted()) {
             throw new IllegalStateException(
                     "startWithInitialStateProbabilities() or startWithInitialObservation() "
                     + "must be called first.");
@@ -285,14 +318,14 @@ public class ViterbiAlgorithm<S, O, D> {
     }
 
     /**
-     * @see ViterbiAlgorithmParams
+     * @see #setComputeSmoothingProbabilities(boolean)
      */
     public boolean isComputeSmoothingProbabilities() {
         return forwardBackward != null;
     }
 
     /**
-     * @see ViterbiAlgorithmParams
+     * @see #setKeepMessageHistory(boolean)
      */
     public boolean isKeepMessageHistory() {
         return messageHistory != null;
@@ -343,7 +376,7 @@ public class ViterbiAlgorithm<S, O, D> {
      */
     private void initializeStateProbabilities(O observation, Collection<S> candidates,
             Map<S, Double> initialLogProbabilities) {
-        if (message != null) {
+        if (processingStarted()) {
             throw new IllegalStateException("Initial probabilities have already been set.");
         }
 
